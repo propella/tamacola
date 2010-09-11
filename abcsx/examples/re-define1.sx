@@ -1,0 +1,26 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "re-define1") (flags 0) (options ()) (param_names ())))
+    (code (
+           (getlocal 0) ;; Set up the globl scope.
+           (pushscope)
+
+           (findproperty ((ns "") "x"))
+           (pushstring "** BAD! This should be overridden by the second script. **")
+           (setproperty ((ns "") "x"))
+
+           (findproperty ((ns "") "y"))
+           (pushstring "y is defined at the first script.")
+           (setproperty ((ns "") "y"))
+
+           (returnvoid)
+           )))))
+ (script (((init (method 0))
+           (trait (
+                   ((kind slot) (name ((ns "") "*global*")) (slot_id 1) (type_name *) (vindex 0) (metadata ()))
+                   ((kind slot) (name ((ns "") "x")) (slot_id 2) (type_name *) (vindex 0) (metadata ()))
+                   ((kind slot) (name ((ns "") "y")) (slot_id 3) (type_name *) (vindex 0) (metadata ()))
+                   ))))))

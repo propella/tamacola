@@ -1,0 +1,29 @@
+;; -*- lisp -*-
+;; Function f is exposed to public
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "f") (flags 0) (options ()) (param_names ())))
+    (code
+     (;;(getlocal_0) (pushscope)
+      ;; print("hello")
+      (findpropstrict ((ns "") "print"))
+      (pushstring "Hello, World!")
+      (callproperty ((ns "") "print") 1)
+      (returnvalue))))
+   ((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      ;; Asc compiler makes method slot for public function. But it could be a slot either.
+      ;; f = function() { print("hello") }
+      (getlocal_0)
+      (newfunction (method 0))
+      (setproperty ((package "") "f"))
+      (returnvoid))))))
+ (script
+  (((init (method 1))
+    (trait (
+;            ((kind method) (name ((ns "") "f")) (disp_id 20) (method 0) (metadata ()))
+            ((kind slot) (name ((ns "") "f")) (slot_id 1) (type_name *) (vindex 0) (metadata ()))
+            ))))))

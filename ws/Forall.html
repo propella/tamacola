@@ -1,0 +1,43 @@
+<p align='center'><font face='Courier New' size='36'><b>Life Game in Forall</b></font></p>
+<font face='Courier New' size='18'>This is the workspace for the Forall langauge on Tamacola.</font>
+<font face='Courier New' size='12'>
+
+N = 100;
+arr = new[N, N];
+arr[i:0...N, j:0...N] = Math.floor(Math.random() + 0.5); FArrayFlip(arr);
+arr[i:0...N, j:0...N] = Math.floor(Math.random() + 0.5);
+nextStep = function (a, n) {
+  return (n == 3 || (a == 1 && (n == 2 || n == 3))) ? 1 : 0;
+};
+
+step = function () {
+  arr[i:1..N, j:1..N] = arr[i-1, j-1] + arr[i-1, j]              + arr[i-1, j+1] + 
+                        arr[i, j-1]   + (arr[i, j] > 0 ? 10 : 0) + arr[i, j+1] + 
+                        arr[i+1, j-1] + arr[i+1, j]              + arr[i+1, j+1];
+    FArrayFlip(arr);
+  %all{a[i, j] &lt; arr} do {a = nextStep(a // 10, a % 10);};
+    FArrayFlip(arr);
+  stage().graphics.clear();
+  stage().graphics.beginFill(16711935);
+  %such{a == 1 | a[i, j] &lt; arr} do {((stage()).graphics).drawRect(i*4+240, j*4+20, 4, 4);};
+};
+stage().addEventListener("enterFrame", step);
+
+;;; Switch the grammar to PEG
+gdigit	= [012345678] 
+
+golly   = _ "B" gdigit*:b "/" "S" gdigit*:s    -> (let ((f (lambda (n s) `(,@s (= n ,(- n #"0"))))))
+                                                    (cons (fold f '(#f) (->list b))
+      	       		     	 	     	          (fold f '(#f) (->list s))))
+
+gStart  = golly:c -> `((define nextStep (lambda (a n) (if (or (or ,@(car c)) (and (= a 1) (or ,@(cdr c)))) 1 0))))
+
+;;; Switch the grammar to blank
+
+(add-translator 'Golly (make-translator gStart))
+
+;;; Switch the grammar to Golly
+
+B36/S23
+
+</font>

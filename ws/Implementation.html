@@ -1,0 +1,39 @@
+<p align='center'><font face='Times' size='36'><b>Implementation</b></font></p>
+
+<font face='Times' size='18'>How cola is implemented in ActionScript semantics</font>
+
+<font face='Times' size='18'>Lambda expression</font><font face='Courier New' size='12'>
+
+<b>(lambda (a)
+  (let ((a "inner")) a))</b>
+
+function (a) {
+  with({ a : "inner" }) {
+    return a
+  }
+}
+
+<font face='Times' size='18'>Structure (tuples)</font>
+
+<b>(define-structure pair (head tail))</b>
+
+public class typeof-pair {
+  private var head;
+  private var tail;
+  public function pair-head () { return this.head; }
+  public function set-pair-head (value) { this.head = value; }
+  public function pair-tail () { return this.tail; }
+  public function set-pair-tail (value) { this.tail = value; }
+}
+
+<font face='Times' size='18'>Generic function</font>
+
+<b>(define-generic next (self) (error "next is not defined in " self))
+
+(define-method next typeof-byte-stream (lambda (self) ...))</b>
+
+function next (self) {
+  self["*m*-next"](self);
+}
+
+typeof-byte-stream.prototype["*m*-next"] = function (self) { ... }

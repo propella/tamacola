@@ -1,0 +1,24 @@
+;; -*- lisp -*-
+;; Make an array and access
+
+(asm
+ (ns_set ((ns_set (ns ""))))
+ (method
+  (((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)				; Global
+      (pushscope)				;
+
+      (findpropstrict ((ns "") "trace"))	; global
+        (getlex ((ns "") "Array"))		; global Array
+	(construct 0)				; global []
+	(dup)					; global [] []
+	(pushbyte 10)				; global [] [] 10
+	(pushstring "Hello, World!")		; global [] [] 10 "Hello, World!"
+	(setproperty (multinamel (ns_set 1)))	; global [10: "Hello, World"]
+	(pushbyte 10)				; global [10: "Hello, World"] 10
+	(getproperty (multinamel (ns_set 1)))	; global "Hello, World!"
+      (callproperty ((ns "") "trace") 1)	; undefined
+
+      (returnvalue))))))
+ (script (((init (method 0)) (trait ())))))

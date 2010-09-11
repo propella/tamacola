@@ -1,0 +1,47 @@
+;; -*- lisp -*-
+;; This script is useful to compare two similar objects.
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "hello") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+
+      ;; Compare: getlocal 0 == getscopeobject 0 ?
+      (findpropstrict ((package "") "print"))
+      (pushstring "Compare: getlocal 0 == getscopeobject 0 ?")
+      (callproperty ((package "") "print") 1)
+
+      (findpropstrict ((package "") "print"))
+      (getlocal 0)
+      (getscopeobject 0)
+      (strictequals)
+      (callproperty ((package "") "print") 1)
+
+      ;; Compare: getlocal 0 == getglobalscope ?
+      (findpropstrict ((package "") "print"))
+      (pushstring "Compare: getlocal 0 == getglobalscope ?")
+      (callproperty ((package "") "print") 1)
+
+      (findpropstrict ((package "") "print"))
+      (getlocal 0)
+      (getglobalscope)
+      (strictequals)
+      (callproperty ((package "") "print") 1)
+
+      ;; Compare: getlocal 0 == findpropstrict print ?
+      (findpropstrict ((package "") "print"))
+      (pushstring "Compare: getlocal 0 == findpropstrict print ?")
+      (callproperty ((package "") "print") 1)
+
+      (findpropstrict ((package "") "print"))
+      (getlocal 0)
+      (findpropstrict ((package "") "print"))
+      (strictequals)
+      (callproperty ((package "") "print") 1)
+
+      (returnvoid)))
+    )))
+ (script (((init (method 0)) (trait ())))))

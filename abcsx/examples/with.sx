@@ -1,0 +1,46 @@
+;; -*- lisp -*-
+;; Making a scope with an object
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "main") (flags 0) (options ()) (param_names ())))
+    (code
+     (;; Normal initialization code (getlocal 0) (pushscope) is
+      ;; omitted because there is no getlex or findproperty in the
+      ;; scope.
+
+      ;; var obj = { 'v' : "Hello, World" }
+      (pushstring "v")
+      (pushstring "Hello, World!")
+      (newobject 1)
+      (getlocal_0)
+      (swap)
+      (setproperty ((package "") "obj"))
+      
+      ;; with (obj) {
+      (getlocal_0)
+      (getproperty ((package "") "obj"))
+      (pushwith) ; (pushscope) ; pushscope works as well as pushwith
+      
+      ;; (function () { print (v) })()
+      (newfunction (method 1))
+      (pushnull)
+      (call 0)
+      
+      ;; }
+      (popscope)
+      (returnvalue)
+      )))
+
+   ((signature ((return_type *) (param_type ()) (name "sub") (flags 0) (options ()) (param_names ())))
+    (code
+     (;; print(v)
+      (getlex ((ns "") "print"))
+      (pushnull)
+      (getlex ((ns "") "v"))
+      (call 1)
+      (returnvalue)
+      )))
+   ))
+ (script
+  (((init (method 0)) (trait ())))))

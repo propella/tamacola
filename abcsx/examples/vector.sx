@@ -1,0 +1,34 @@
+;; -*- lisp -*-
+;; parametrized vector test
+
+(asm
+ (ns_set ((ns_set (package ""))))
+ (method
+  (((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+
+      (getlex ((ns "__AS3__.vec") "Vector"))
+      (getlex ((ns "") "String"))
+      (applytype 1)
+      (pushbyte 2)
+      (construct 1)
+      (setlocal 1)
+
+      (getlocal 1)
+      (pushbyte 0)
+      (pushstring "Hello")
+      (setproperty (multinamel (ns_set 1)))
+
+      (getlocal 1)
+      (pushbyte 1)
+      (pushstring " World!")
+      (setproperty (multinamel (ns_set 1)))
+
+      (findpropstrict ((ns "") "print"))
+      (getlocal 1)
+      (callproperty ((ns "") "print") 1)
+      (returnvalue)
+      )))))
+ (script (((init (method 0)) (trait ())))))

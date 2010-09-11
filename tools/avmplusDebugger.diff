@@ -1,0 +1,36 @@
+diff -r fbecf6c8a86f core/avmplusDebugger.cpp
+--- a/core/avmplusDebugger.cpp	Wed Mar 10 17:58:52 2010 -0500
++++ b/core/avmplusDebugger.cpp	Wed May 12 10:40:17 2010 -0700
+@@ -278,11 +278,32 @@
+ 					core->console << traceArgumentsString();
+ 
+ 				core->console << ")";
++#if 0 /* Yoshiki */
+ 				if (!fnc->suggestInterp())
+ 				{
+ 					core->console << " @ 0x";			
+ 					core->console.writeHexAddr( (uintptr)fnc->implGPR());
+ 				}
++#endif
++#if 1 /* Yoshiki */
++				core->console << " @ 0x";			
++				core->console.writeHexAddr( (uintptr)core->callStack);
++				if (core->callStack && core->callStack->next() && core->callStack->next()->info()) {
++				  Stringp fname = (core->callStack->next()->info())->getMethodName();
++				  core->console << ", ";
++				  if (fname && (fname->length() > 0) )
++				    core->console << fname;
++				  else
++				    core->console << "<unknown>";
++
++				  /* if (!core->callStack->next()->info()->suggestInterp()) */
++				    {
++				      core->console << " @ 0x";			
++				      core->console.writeHexAddr( (uintptr)core->callStack->next());
++				    }
++
++				}
++#endif
+ 				core->console << "\n";		
+ 			}
+ 		}		

@@ -1,0 +1,26 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "re-define2") (flags 0) (options ()) (param_names ())))
+    (code (
+           (getlocal 0) ;; Set up the globl scope.
+           (pushscope)
+
+           (findproperty ((ns "") "x")) ;; findproperty skips current scope if x is undefined.
+           (pushstring "Hello, World!")
+           (setproperty ((ns "") "x")) ;; and save "Hello, World!" to the parent scope.
+
+           (findproperty ((ns "") "z"))
+           (pushstring "z is defined at the second script.")
+           (setproperty ((ns "") "z"))
+
+           (returnvoid)
+           )))))
+ (script (((init (method 0))
+           (trait (
+                   ((kind slot) (name ((ns "") "*global*")) (slot_id 1) (type_name *) (vindex 0) (metadata ()))
+                   ((kind slot) (name ((ns "") "x")) (slot_id 2) (type_name *) (vindex 0) (metadata ()))
+                   ((kind slot) (name ((ns "") "z")) (slot_id 3) (type_name *) (vindex 0) (metadata ()))
+                   ))))))

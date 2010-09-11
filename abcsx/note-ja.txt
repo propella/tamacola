@@ -1,0 +1,178 @@
+scheme による abc アセンブラ -*- outline -*-
+
+todo: write Trait_Function, Trait_Const
+todo: 起動コマンド統一
+todo: gauche dump
+todo: scheme 48 対応
+todo: パラメータ一つの時 (key value) 複数の時 (key value value ..) に統一
+todo: 関数定義引き数付き
+todo: signature で (name *) が指定出来ない。
+
+* bugs
+
+** Happy ABC で疑問の所
+stack= -arg1?
+CallProperty   of Cpool.multiname * int: op=0x46; stack= 1-arg1; const=[entry arg0]; args=fun ctx ->[cindex arg0 ctx; u30 arg1]
+
+** avm2overview.pdf
+
+4.12 Exception
+exc_type and var_name are multiname instead of string
+
+greaterthan と greaterequals の formats が両方 0xaf
+
+* sassy
+
+;;(require srfi/28) ;; format
+;;(require srfi/60) ;; bitwise
+
+http://home.earthlink.net/~krautj/sassy/sassy.html
+
+* scope
+init script での getscopeobject 0 は getlocal 0 と同じ? -> 同じ
+
+* ローカルファイル？
+
+FileReference
+load():void; 
+save(data:*, defaultFileName:String = null):void;
+
+* sassy で遊ぶ
+
+* リストのある項目を (key value value ..) にする
+
+cpool
+code
+
+* flash launcher でローカルファイルにアクセスする設定
+
+mxmlc -use-network=false launcher.mxml
+
+* 実行方法
+
+make test # 単体テスト
+make test1 # 単純な Flash アプリを逆アセンブル
+make test2 # 色々なサンプルをアセンブルして実行
+make all # 全部実行
+
+abc から swf 作成
+
+make examples/textField.abc
+./swf_abc.erl 100 100 textField examples/textField.abc
+
+* ドキュメント
+open ~/paper/avm2overview.pdf 
+(find-file "~/src/haxe/ocaml/swflib/as3.mli")
+(find-file "~/src/tamarin-central/core/ErrorConstants.cpp") エラー番号
+
+* 便利ツール
+abcdump helloa.abc ; 純正ツール
+../ocaml/dumpabc helloa.abc ; ocaml swflib 使用
+
+* インストラクションメモ
+
+callproperty multiname arg_count : obj, arg1, ..., argn -> value
+obj.multiname(arg1, ... argn) を実行
+
+findpropstrict multiname : -> obj
+スコープスタックから multiname を持つオブジェクトを検索してスタックに積む
+
+setslot と setproperty はどちらでも良い。
+
+* 設計
+
+asm-form : 読みやすい形式
+abc-form : ファイル構造そのまま
+
+* ヒント情報 (hint ((max_stack 2) (local_count 1) (init_scope_depth 0) (max_scope_depth 1)))
+
+hexe の場合
+
+~/src/haxe/haxe/genswf9.ml:645 多分ここで計算
+~/src/tamarin-central.711/utils/abcasm/src/abcasm/MethodBodyInfo.java これも参考になる。
+
+max_stack: stack_size : オペランドスタックサイズ push??? の数?
+local_count: nregs : ローカル変数の最大数 + 1
+init_scope: init_scope
+max_scope: max_scope
+
+* abc ファイルの参照関係
+
+- method_body (byte code) は method (signature) を参照している。
+- instance はクラスオブジェクトの事
+-- instance_info.iinit (コンストラクタ(インスタンス生成時実行)) は method を参照している。
+-- instance は trait を持つ。
+- class はクラスの事
+-- class_info.cinit (クラスコンストラクタ(一度だけ実行)) は method を参照している。
+- script はグローバル関数?
+-- script_info.init は method を参照
+- instance と class は一対一対応
+
+- trait はフィールドの事
+-- Trait_Method 以外の trait は slot_id を持つ
+-- Trait_Slot は定数だけ参照
+-- Trait_Class は class を参照
+-- Trait_Function は method を参照
+-- Trait_Method, Trait_Getter or Trait_Setter は method を参照
+
+** swflib の実装
+
+instance = as3_class
+class = as3_static
+trait = as3_field
+
+* PLT Scheme セットアップ
+
+(setq scheme-program-name "mzscheme")
+(show-paren-mode t)
+(add-hook 'inferior-scheme-mode-hook 'compilation-shell-minor-mode)
+
+* PLT Scheme プログラムの実行方法
+
+$ mzscheme
+> (enter! "dump.ss")
+> (main '())
+
+* scheme48 プログラムの実行方法
+> ,? load-script dump.scm
+> (main '())
+ドキュメント不足のため scheme48 を諦めた。
+
+* scheme48 のインストール
+
+http://www.s48.org/
+
+** emacs mode
+
+- ソースコードをダウンロード http://www.s48.org/1.8/scheme48-1.8.tgz
+- M-x dired emacs/
+- .el ファイルを選択し B でバイトコンパイル
+
+sudo cp -R emacs /opt/local/share/emacs/site-lisp/s48
+
+(setq scheme-program-name "scheme48")
+(autoload 'run-scheme 
+"cmuscheme48" 
+"Run an inferior Scheme process." 
+t)
+
+
+  ;; Setup `compile' support so you can just use C-x ` and friends.
+  (set (make-local-variable 'compilation-error-regexp-alist)
+       inferior-haskell-error-regexp-alist)
+  (set (make-local-variable 'compilation-first-column) 0) ;GHCI counts from 0.
+  (if (and (not (boundp 'minor-mode-overriding-map-alist))
+           (fboundp 'compilation-shell-minor-mode))
+      ;; If we can't remove compilation-minor-mode bindings, at least try to
+      ;; use compilation-shell-minor-mode, so there are fewer
+      ;; annoying bindings.
+      (compilation-shell-minor-mode 1)
+    ;; Else just use compilation-minor-mode but without its bindings because
+    ;; things like mouse-2 are simply too annoying.
+    (compilation-minor-mode 1)
+    (let ((map (make-sparse-keymap)))
+      (dolist (keys '([menu-bar] [follow-link]))
+        ;; Preserve some of the bindings.
+        (define-key map keys (lookup-key compilation-minor-mode-map keys)))
+      (add-to-list 'minor-mode-overriding-map-alist
+                   (cons 'compilation-minor-mode map)))))

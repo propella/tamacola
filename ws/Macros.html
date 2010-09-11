@@ -1,0 +1,18 @@
+<p align='center'><font face='Times' size='36'><b>Macros</b></font></p>
+<font face='Courier New' size='18'>
+<font face='Times' size='18'>Built-in macro</font>
+
+(quote hello)
+
+(list 'Cola "Workspace" 'is 'fun)
+
+(let ((q 'quasiquote))
+  `(Even ,q is working!))
+
+<font face='Times' size='18'>User defined macro</font>
+
+(define-form after (a b) b)
+
+(after
+  (print "*Macro does NOT work*")
+  (print "Macro works"))

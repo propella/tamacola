@@ -1,0 +1,16 @@
+<p align='center'><font face='Times' size='36'><b>Dynamic PEG definition</b></font></p>
+<font face='Courier New' size='18'>
+
+; Switch language to PEG
+
+ggg    = ("A" -> #"a" | .)
+gstart = ggg*:x -> `(,(->string x))
+
+; Switch language to blank
+
+(add-translator 'GGG (make-translator gstart))
+
+; Switch language to GGG
+
+ABC
+

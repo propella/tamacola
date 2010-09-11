@@ -1,0 +1,13 @@
+<p align='center'><font face='Times' size='36'><b>Compile</b></font></p>
+<font face='Courier New' size='18'>
+
+(define compile
+  (lambda (e) (parse-expr exprs (list e))))
+
+(compile '(+ 3 4))
+(compile '(list 1 2 3 4))
+
+(assemble
+  (pushdouble 3.5)
+  (pushint 4)
+  (add_i)) ;; add_i is int specific add

@@ -1,0 +1,35 @@
+; -*- lisp -*-
+; (let ((x "Hello, World!"))
+;   ((lambda () (print x))))
+
+(asm
+ (ns_set ())
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "") (flags 2) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+      (pushstring "Hello, World!")
+      (coerce_a)
+      (setlocal 1)
+      (newactivation) ;; <- this line breaks in Tamarin-central 712 try (getglobalscope) instead
+      (dup)
+      (getlocal 1)
+      (setproperty ((package "") "x"))
+      (pushscope)
+      (newfunction (method 1))
+      (getlocal 0)
+      (call 0)
+      (returnvalue)))
+    (trait
+     (((kind slot) (name ((package "") "x")) (slot_id 1) (type_name *) (vindex 0) (metadata ())))))
+   ((signature
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlex ((package "") "print"))
+      (getlocal 0)
+      (getlex ((package "") "x"))
+      (call 1)
+      (returnvalue))))))
+ (script (((init (method 0)) (trait ())))))

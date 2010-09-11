@@ -1,0 +1,9 @@
+#!/bin/sh
+# SWF builder wrapper
+# Usage: mkswf [-w width] [-h height] [-o outfile] [-c classname] abcfiles ...
+#   if -o is ommited, last abcfile name is used for output.
+
+DIR=$(dirname $0)
+TAMACC="avmshell $DIR/mkswf.swf --"
+
+$TAMACC $@

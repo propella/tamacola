@@ -1,0 +1,24 @@
+<xml>
+  <page>
+    <p align='center'>
+    <font face='Times' size='60'><b>Tamacola</b></font>
+    <font face='Times' size='36'>A Meta Language Kit for the Web</font>
+    <br />
+    <font size='24'>Takashi Yamamiya and Yoshiki Ohshima</font>
+    </p>
+  </page>
+  <page>
+<p align='center'><font face='Times' size='36'><b>Tamacola slide tool</b></font></p>
+
+<font face='Courier New' size='18'>(+ 3 4)
+(print "Hello, World!\n")
+</font>
+  </page>
+  <page>
+    <p>Third page</p>
+    <img src='stack.png'/>
+  </page>
+  <page>
+    <p>Fourth page</p>
+  </page>
+</xml>

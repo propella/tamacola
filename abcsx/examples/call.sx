@@ -1,0 +1,30 @@
+; -*- lisp -*-
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "main") (flags 0) (options ()) (param_names ())))
+    (code
+     ((findpropstrict ((package "") "hello"))
+      (pushstring "Hello, World!")
+      (callproperty ((package "") "hello") 1)
+      (returnvalue))))
+   ((signature ((return_type *) (param_type (*)) (name "hello") (flags 0) (options ()) (param_names ())))
+    (code
+     ((findpropstrict ((package "") "print"))
+      (getlocal_1)
+      (callproperty ((package "") "print") 1)
+      (returnvalue))))
+   ((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      (getglobalscope)
+      (newfunction (method 0))
+      (setproperty ((package "") "main"))
+      (getglobalscope)
+      (newfunction (method 1))
+      (setproperty ((package "") "hello"))
+      (findpropstrict ((package "") "main"))
+      (callproperty ((package "") "main") 0)
+      (returnvalue)
+      )))))
+ (script (((init (method 2)) (trait ())))))

@@ -1,0 +1,8 @@
+#!/bin/sh
+# ABC Cola Compiler
+# ./tamacc -x example/hello.k [-- avmshell args]
+
+DIR=$(dirname $0)
+TAMACC="$DIR/../cola.sh $DIR/tamacc.k"
+
+$TAMACC $@

@@ -1,0 +1,45 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type (*)) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((findpropstrict ((package "") "print"))	; scope
+      (findpropstrict ((package "") "free"))	; scope, scope
+      (getproperty ((package "") "free"))	; scope, "Hello "
+      (getlocal_1)				; scope, "Hello ", "world"
+      (add)					; scope, "Hello world"
+      (callproperty ((package "") "print") 1)	; undefined
+      (returnvalue))))
+   ((signature ((return_type *) (param_type (*)) (name "") (flags 2) (options ()) (param_names ())))
+    (code
+     ((newactivation)				; scope
+      (dup)					; scope, scope
+      (getlocal_1)				; scope, scope, "Hello, "
+      (setproperty ((package "") "free"))	; scope,
+      (pushscope)				;
+      (newfunction (method 0))			; func
+      (returnvalue)))
+    (trait
+     (((kind slot)
+       (name ((package "") "free"))
+       (slot_id 1) (type_name *) (vindex 0) (vkind 0) (metadata ())))))
+   ((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)				; this
+      (pushscope)				;
+      (getglobalscope)				; global
+      (newfunction (method 1))			; global, hello
+      (setproperty ((package "") "hello"))	;
+
+      (findpropstrict ((package "") "hello"))	; global
+      (pushstring "Hello, ")			; global, "Hello, "
+      (callproperty ((package "") "hello") 1)	; func
+
+      (getlocal 0)				; func, this
+      (pushstring "World!")			; func, this, "World!"
+      (call 1)
+      (returnvalue))))))
+ (script
+  (((init (method 2))
+    (trait ())))))

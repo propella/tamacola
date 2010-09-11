@@ -1,0 +1,13 @@
+;; -*- lisp -*-
+;; Partial compilation test. call function f() in partial1.sx
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      (findpropstrict ((ns "") "f"))
+      (callproperty ((ns "") "f") 0)
+      (returnvalue))))))
+ (script (((init (method 0)) (trait ())))))

@@ -1,0 +1,8 @@
+#!/bin/sh
+# ABC Cola Compiler
+# ./tamacc.sh -x example/hello.k [-- avmshell args]
+AVM=avmshell
+DIR=$(dirname $0)
+TAMACC="$AVM $DIR/tamacc.swf --"
+
+$TAMACC $@

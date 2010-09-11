@@ -1,0 +1,7 @@
+#!/bin/sh
+# ABCSX assembler launcher
+AVM=avmshell
+DIR=$(dirname $0)
+ABCSX="$AVM $DIR/abcsx.swf --"
+
+$ABCSX $1 && avmshell $1.abc

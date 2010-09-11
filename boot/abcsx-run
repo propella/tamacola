@@ -1,0 +1,6 @@
+#!/bin/sh
+# ABCSX assembler launcher
+DIR=$(dirname $0)
+ABCSX="$DIR/../cola.sh $DIR/abcsx.k"
+
+$ABCSX $1 && avmshell $1.abc

@@ -1,0 +1,17 @@
+; -*- lisp -*-
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      (getlex ((package "avmplus") "System"))
+      (pushstring "Hello, ")
+      (callpropvoid ((package "") "write") 1)
+      (getlex ((package "avmplus") "System"))
+      (pushstring "World!\n")
+      (callproperty ((package "") "write") 1)
+      (coerce_a)
+      (returnvalue))))))
+ (script (((init (method 0)) (trait ())))))

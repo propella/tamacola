@@ -1,0 +1,62 @@
+;; -*- lisp -*-
+;; A GUI version Hello World! program.
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "Hello_class_new") ; method 0
+		(flags 0) (options ()) (param_names ())))
+    (code
+     ((returnvoid))))
+
+   ((signature ((return_type *) (param_type ()) (name "Hello_new") ; method 1
+		(flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      (getlocal_0)
+      (debugfile "examples/textField.sx")
+      (debugline 22)
+      (constructsuper 0)
+      (findpropstrict ((package "flash.text") "TextField"))
+      (constructprop ((package "flash.text") "TextField") 0)
+      (coerce ((package "flash.text") "TextField"))
+      (setlocal_1)
+      (getlocal_1)
+      (pushstring "Hello, World!")
+      (setproperty ((package "") "text"))
+      (findpropstrict ((package "") "addChild"))
+      (getlocal_1)
+      (callproperty ((package "") "addChild") 1)
+      (returnvalue))))
+
+   ((signature ((return_type *) (param_type ()) (name "") ; method 2
+		(flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)						; this			|
+      (pushscope)						; 			| this
+      (debugfile "examples/textField.sx")
+      (debugline 42)
+      (getlocal_0)						; this, Hello, this	| this
+      (getlex ((package "flash.display") "Sprite"))		; this, Sprite		| this
+      (dup)							; this, Sprite,Sprite	| this
+      (pushscope)						; this, Sprite		| this, Sprite
+      (newclass 0)						; this, Hello		| this, Sprite
+      (popscope)						; this, Hello		| this
+;      (initproperty ((package "") "Hello"))			; 			| this
+      (setproperty ((package "") "Hello"))			; 			| this
+      (returnvoid))))))
+ (instance
+  (((name ((package "") "Hello_instance"))
+    (super_name ((package "flash.display") "Sprite"))
+    (flags 0)
+    (interface ())
+    (iinit (method 1))
+    (trait ()))))
+ (class (((cinit (method 0)) (trait ()))))
+ (script
+  (((init (method 2))
+    (trait
+     (((kind slot)
+       (name ((package "") "Hello"))
+       (slot_id 1) (type_name *) (vindex 0) (vkind 0) (metadata ())))
+     )))))

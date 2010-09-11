@@ -1,0 +1,9 @@
+#!/bin/sh
+# SWF builder wrapper
+# Usage: abcsx [-asm | -dump] [-abc] filename
+#   if -o is ommited, last abcfile name is used for output.
+
+DIR=$(dirname $0)
+TAMACC="avmshell $DIR/abcsx.swf --"
+
+$TAMACC $@

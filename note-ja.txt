@@ -1,0 +1,754 @@
+-*- outline -*-
+
+todo: rename runtime -> src (and move there some files in boot)
+todo: publish the source code to github
+todo: write scripts: abcsx with -x option instead of abc-asm-run.sh
+todo: error happens: bin/abcsx -dump example/cat.k
+todo: remove definition???
+todo: boot/tamacc.k and runtime/tamacc.k
+todo: cleanup naming in syntax-lib: push-xxx -> xxx-push
+todo: is "(env-frame-top *parser*) :frame" necessary?
+todo: rename slot-multiname.
+todo: bug a subclass doesn't have a context of super sueper class.
+todo: webdav
+todo: PEG in Cola Workspace
+todo: User defined predicate rule in PEG.
+todo: use next-put-all in boot side (it always has two arguments)
+todo: quote consumes many stack. (now q-object save it a little bit).
+todo: runtime: write call-with-input/output-file in a common place.
+todo: pretty-print and writer for byte array
+todo: hex values
+todo: write-u32 #x80000000 (uinteger support)
+todo: reconsider write-d64. write d64 into stream directly is better.
+todo: a printer for flash.utils.ByteArray
+todo: RULE should be two different operator. RULE: parses current stream. APPLY: parses new stream.
+todo: while version of fold1 is slower than recursion version
+todo: load on compiler
+todo: argv only works tamarin 712, however newactivation only works 711
+todo: command line argument: how to get program name and script name and arguments?
+todo: read gosh souce to learn how to handle load
+todo: doprint
+todo: include
+todo: make sure bevior of the stack in the script rule
+todo: setting property at first without register setting for slot of let.
+todo: integrate let, lambda and the initial script.
+todo: library
+todo: d64 double
+todo: define returns the value
+
+[Chicken-users] macro systems and chicken (long)
+http://lists.gnu.org/archive/html/chicken-users/2008-04/msg00013.html
+
+(trace (avmplus/describeType '() avmplus/FLASH10_FLAGS))
+(String (flash.utils/describeType '(1 2)))
+http://scratch.mit.edu/static/experimental/Scratch.swf?owner=abee&projectname=1169361
+
+* github 版で削除した部分
+- paper/ 未発表なのと画像が沢山あるため。
+
+* tail call
+
+http://wiki.github.com/krestenkrab/erjang/how-erjang-compiles-tail-recursion
+
+* namespace
+
+http://scheme-punks.org/wiki/index.php?title=ERR5RS:Libraries
+
+** high level API
+
+(library name.space
+  (import more.name)
+  (define something)
+  ... )
+
+** low level API
+
+(in-ns      "name.space")     ;; switch current namespace for define
+(in-imports "more.space" ...) ;; switch import namespaces for get
+(import     name.space)     ;; add import namespace
+
+* copyright
+- boot/peg.k
+- boot/peg-grammar.g
+- boot/stream.k
+- boot/peg-boot.k
+
+* Tamarin VM binary
+ftp://ftp.mozilla.org/pub/js/tamarin/builds/
+
+* coding style
+http://community.schemewiki.org/?scheme-style
+
+* debuger information
+
+http://osflash.org/ofd#in_the_swf
+http://wahlers.com.br/claus/blog/undocumented-swf-tags-written-by-mxmlc/
+
+* recursion
+
+(define list-length
+  (lambda (list)
+    (let loop ((n 0) (current list))
+  (if (pair? list)
+      (loop (+ n 1) (cdr list))
+    n))))
+
+list-length = function (list)
+{
+   n = 0;
+   current = list;
+   loop:
+     if (pair? list) {
+       n;  
+     } else {
+       n = (+ n 1);
+       current = (cdr current);
+       goto loop;
+    }
+}
+
+* write scripts: tamacc and abcsx
+
+boot/tamacc -x
+boot/abcsx -x
+runtime/tamacc -x
+runtime/abcsx -x
+
+* ActionScript type int and Number
+
+http://troyworks.com/blog/2007/12/02/as3-understanding-uint-int-number/
+
+* How it works
+
+** directory
+
+- boot/ : boot time
+- run/ : runtime
+- lib/ : common library to both boot and runtime
+- example/ : example
+- abcsx/ : assembler
+
+** Sequence
+
+- boot library test : boot/
+- boot abcsx test : boot/
+- boot abcsx runs abcsx examples : boot/
+- boot compiler test : boot/
+- boot compiler runs example : example/
+- boot compiler runs Flash demo (run hello world、graphics、calc) example/
+
+- run library test : run/
+- run abcsx test : run/
+- run abcsx runs abcsx examples : run/
+- run compiler test : run/
+- run compiler runs example : example/
+- run compiler runs Flash demo (run hello world、graphics、calc) example/
+
+* singed / unsinged integer
+
+signed int ... from -2147483648 to -2147483648
+
+** gosh
+gosh> #x80000000
+2147483648  -- bigint
+(- 0 #x80000000)
+-2147483648 -- bigint
+
+** avmshell
+> 0x80000000
+2147483648  -- bigint
+> 0 - 0x80000000
+-2147483648 -- bigint
+
+** cola
+.#x80000000 -- signed int
+=> -2147483648
+(- 0 #x80000000)
+ => -2147483648 -- signed int
+
+** cola/flash
+> #x80000000 -- signed int
+-2147483648
+> (- 0 #x80000000)
+2147483648 -- converted to big int
+
+* errata avm2overview.pdf
+
+newarray creates object, not array
+
+p86. newarray's format and forms shows newobject
+
+p79 also A TypeError is thrown if value is undefined
+
+* how to handle scopes
+
+~/src/scheme-abc/scm/example/closure.scm
+~/src/scheme-abc/scm/codegen/codegen.ml
+activation vs newobject
+- newactivation can be used only one in a function
+- newobject and with
+
+* difference between cola boot time environment and flash/Tamarin runtime semantics
+
+- set returns undefined in runtime
+- (car ()) (cdr ()) raise an error in runtime.
+- (if ...) requires exact three arguments.
+- #f and () and different object in runtime
+- equals? (=) causes error if arguments includes undefined. You can still use eq? (===)
+- Almost all cases, an undefined value in arguments happens error.
+
+* pattern matching idea
+
+~/doc/haskell/reversible.hs
+
+let (pair x y) = (3 . 4)
+in x + y
+=> 7
+
+let double      = x              -> 2 * x -- function
+    double~     = x | _          -> undefined -- inverse function
+                    | x % 2 == 0 -> x / 2    
+    is-double?  = _              -> true  -- pattern matching
+    is-double? |= double x       -> false -- append definition
+in  is-double 100
+=> true
+
+length () = 0
+length (pair x y) = 1 + length y
+length xs ::array = array-length xs
+
+data Descartes x y
+
+~Polar (Descartes x y) = atan2 y x
+
+
+http://www.scala-lang.org/node/112
+
+
+** Deconstructor as a accessor
+let (length n) = (1 2 3 4)
+in n
+=> 4
+
+* bug report
+
+cola doesn't support oct syntax like \101 (== A)
+
+complicated expression ,@(apply append (->list a)) doesn't work
+	| '( expr:f &arity:n args:a )		-> `(,@f (getlocal 0) ,@(apply append (->list a)) (call ,n))
+
+  (define-structure *end* ())
+  (define *end* (new-*end*))
+
+  case of typeof-undefined in (define ->token-stream (array))
+
+how to make C struct stat?
+
+* load and load-path
+
+binary path?
+(define stat		(extern "stat"	'(-> int  (* char) (* (struct stat)))))
+
+load-path depends on string operation (concat)
+
+todo: *library-path* path searches cola's directory and user directory
+
+* function-code word-array
+.(function-code (closure-function (lambda () "hello" "a" 'b 'c 'd)))
+ => {#{37687 0 43348 1 43348 2 43348 3 43348 4 43348 5 58534} "hello" "a" b c d}
+
+* Terminology
+
+- local variable - variable defined in the same function.
+- register variable - local variable & referred from only same function.
+- activation variable - local variable & referred as a free variable from others.
+- free variable - variable defined in parents function.
+
+* simplify refer-frame. only detect whether it is local or not.
+local variable -> return '(local id)
+free variable -> return '(free)
+
+* How to handle free variable in the initial script.
+
+Variables referred as a free variable are defined as method slots in method definition.
+It is necessary both normal method and initial script.
+
+* How to handle variables and closure.
+
+AVM has two kinds of storage for variables.
+- registers (= stack)
+-- (getlocal 0..) read a register
+- slot (= environment)
+-- (getlex "name") get a value of the name from environment
+-- (getslot 0..) get a value of the index of the scope object on stack top.
+-- (getscopeobject 0..) push a scope object from the scope stack.
+
+Resigters are removed whenever the function is ended.
+Slots can be used as free variables but you have to copy values from registers.
+
+(let ((a b c)) *body*)
+register: a b c
+slot:
+
+(let ((a b c)) (lambda () a))
+register: a c
+slot: b
+
+(lambda (a b) (let (b) a))
+register: b
+slot: a
+
+[registers | registers | ... , slots | slots | ...]
+
+(let (a b) ;;               [b              , a]
+  (lambda (b c) ;;          [b | b          , a | c]
+    (let ((f c) g) ;;       [b | b | f g    , a | c]
+       (lambda (h) a)))) ;; [b | b | f g | h, a | c]
+
+(lambda (a b)   ;; [ a b  ,    ]
+  (lambda (c d) ;; [ b | d,    ]
+    (a c)))     ;; [ b | d, a c]
+
+(let (a b)      ;; [ b    , a  ]
+  (lambda (c d) ;; [ b | d,    ]
+    (a c)))     ;; [ b | d, a c]
+
+(lambda (a b)   ;; [ a b      , ]
+  (let (c d)    ;; [ a b | c d, ]
+    (a c)))     ;; [ a b | c d, ]
+
+(lambda (a b)   ;; [ a b, ]
+  (set! a 1)    ;; [ a b, ]
+  (lambda (b c) ;; [ a b | b c, ]
+    (set! a 2)  ;; [ a b | b c, a ]
+    c)          ;; [ a b | b c, a ]
+  (set! a 3))   ;; [ a b, a ]
+
+** specification
+
+*** (refer name env) procedure
+
+name is a variable name, env is a compile time environment object. It
+return either a list '(free depth id) if the name is found in the
+environment, or '(reg id) if it is name in the stack. Otherwise, it
+returns '().
+
+*** compile time environment
+
+local = (... var2 var1 var0) ;; are all variables.
+free = (... var2 var1 var0) ;; are free variables.
+block = (local free) ;; a block shows a local scope (let). free is a subset of local.
+frame = (... block2 block1 block0) ;; a frame (lambda) is a nested block (let)
+env = (... frame2 frame1 frame0) ;; a function can be a nexted frames.
+
+* Differences from open-scope to push-scope
+- push-scope is used in params in lambda
+- open-scope is used in let expression
+
+Structure of *scope-stack*:
+(((local4 local3) (local2 local1)) ((free2 free1)))
+
+(lambda (free1 free2)
+  (lambda (local1 local2)
+    (let (local3 local4)
+      *body*)))
+
+* goal: PEG parser
+
+* dictionary
+
+** before
+$ time ./abccc2.k example/nfib10.k 
+real 0m3.610s user 0m3.563s sys 0m0.024s
+
+** after
+time ./abccc2.k example/nfib10.k 
+real 0m3.637s user 0m3.593s sys 0m0.020s
+
+* reference
+
+Happy-ABC std.scm ~/src/scheme-abc/lib/habc/std.scm
+Las3r ~/src/las3r/src/as3/com/las3r/demo/garden/garden.lsr
+
+* AVM2 Object oriented API
+
+** Class definition
+
+(class Name (Super [Interface ...]) ([member ...]))
+
+** slot access
+(slot-getq obj slot)
+(slot-setq! obj slot value)
+
+** Send a method
+~/src/tamarin-central/shell/shell_toplevel.as にあるメソッドを呼び出し。
+
+* peg の使い方
+
+** cola インタプリタの作り方
+./mkpeg.k grammar.g > grammar.k
+echo '(+ 3 4)' | ./cola.k /dev/stdin
+
+cd pegtest
+make
+
+** test-asm.k を参考に peg を使ったコンパイラ
+
+abc-compile で作った abc ファイルの動作確認
+./abccc.k -S example/3plus4.k
+
+** peg に関するファイル
+
+peg.g : peg 文を amino プログラムに変換する。文法。
+grammar.g : cola パーサー？
+parser.k : パーサー本体
+
+** パーサーの内容
+
+一番簡単なパーサー
+(define-syntax parser-succeed	exprs `(let () ,@exprs 't))
+(define-syntax parser-fail	exprs `(let () ,@exprs ()))
+(define-syntax match-result (result)  `(let () (set (parser-result *parser*) ,result) 1))
+
+パーサーとは parser p と stream s を引き数に取る関数。
+- parser には結果の値が入る。
+- stream には解析中のストリームが入る。
+- 成功時 't を、失敗時 '() を返す。返り値は set-parser-result に格納
+- define-rule を使うと *parser* と *stream* が定義される。
+
+* プレゼン内容
+
+- Tamarin 概要
+- ベンチマーク
+- abc 内部構造
+- runtime stack structure
+- ロードマップ
+
+* x86 native compile
+
+[takashi@scissorhands cola]
+
+$ ./main asm-compile.k example/hello.k > hello.sx
+$ cpp -P hello.sx > hello.s
+$ as -o hello.o hello.s
+$ ld -o hello hello.o -lcrt1.o -lc
+
+* benchmark
+
+** 2010-08-12 make benchmark (Extract inner structures in syntax.g)
+47.99 real        46.29 user         1.06 sys
+
+** 2010-08-04 make benchmark
+60.20 real        58.41 user         1.51 sys
+
+** 2010-08-04 make benchmark
+61.30 real        59.49 user         1.54 sys
+
+** 2010-07-06 (use ActionScript object instead of assoc list for *macro*)
+115.76 real (1m55s)      113.68 user         1.65 sys
+
+** 2010-06-28
+$ time make -C stage2
+real 1m55.559s user 1m53.583s sys 0m1.602s
+
+** 2010-05-21
+$ time make -C stage2
+real 2m39.174s user 2m37.409s sys 0m1.711s (no optimization)
+real 2m27.336s user 2m25.613s sys  0m1.677s (car cdr macro)
+real 2m14.617s user 2m12.877s sys  0m1.688s (car cdr pair?)
+real 2m16.169s user 2m14.464s sys  0m1.658s (car cdr pair? ===)
+real 2m3.952s user 2m2.136s sys 0m1.726s (car cdr pair? === bytes? array?)
+real 2m3.954s user 2m2.096s sys 0m1.772s (car cdr pair? === bytes? array? assq)
+real 1m47.316s user 1m45.453s sys 0m1.792s (car cdr pair? === bytes? array? assq new-pair define-generic string-ref)
+
+** 2010-05-14
+$ time make -C stage2
+real 2m44.096s user 2m38.489s sys 0m2.096s
+
+$ time make -C stage2 (car cdr macro)
+real 2m27.188s user 2m22.799s sys 0m2.866s
+
+** 2010-05-06
+
+$ time runtime/abc-cc.sh example/nfib10.k 
+real 0m0.317s user 0m0.242s sys 0m0.072s
+
+$ time avmshell example/nfib10.abc 
+real 0m13.177s user 0m13.032s sys 0m0.042s
+
+** 2010-03-23
+time ./cola abc-boot.k abc-cc.k example/nfib10.k
+        1.13 real         0.92 user         0.02 sys
+
+$ time avmshell example/nfib10.abc
+26.16 real        24.01 user         0.23 sys
+
+** peg, クロージャ有効
+$ make -f abc.mk benchmark
+time ./abccc2.k example/nfib10.k
+        3.32 real         3.22 user         0.02 sys
+time ./avmshell example/nfib10.abc
+       79.20 real        76.84 user         0.33 sys
+
+** 旧版
+
+[takashi@scissorhands cola]$ make -f abc.mk benchmark
+time ./main abc-compile.k test-asm-compile.k > test-asm-compile.sx
+real    0m1.457s
+time ./abcasm.k test-asm-compile.sx > test-asm-compile.sx.abc
+real    0m1.986s
+time avmshell test-asm-compile.sx.abc
+22.14 real
+
+** 生成ファイルの速度
+
+make -f tamarin.k allbenchmark
+make asm
+make -f tamarin.k
+
+$ time avmshell example/nfibs.sx.abc
+real 0m22.142s	user 0m21.918s	sys 0m0.075s
+
+$ time ./asm
+real 0m0.983s	user 0m0.963s	sys 0m0.007s
+
+$ time ./main nfib.k 
+real 1m5.374s user 1m4.656s	sys 0m0.244s
+
+* コンパイラの動作
+
+実行: ./abcrun.sh example/hello.k
+
+lisp 方式: 関数を実行文として読み込みながらコンパイル。
+- コンパイルの途中で他の関数をコンパイルする必要がある。
+
+C 方式: 関数を全てコンパイルした後で main 関数を実行。
+- トップレベルの関数のみ。
+
+* write を使った出力
+
+(define bytes
+  (lambda elements
+    (let ((dst (byte-array (list-length elements))))
+      (map-with-index (lambda (e i) (set-byte-array-at dst i e)) elements)
+      dst)))
+
+(define write (extern "write" '(function int int (* char) int)))
+(define hello (bytes #x05 #x68 #x65 #x6c #x6c #x6f #x0a))
+
+(write 1 (long@ hello 4) (byte-array-length hello))
+
+* snprintf を使った format %f でエラーが出る
+(define snprintf (extern "snprintf" '(function int long long (* char) ...)))    
+(define print-format
+  (lambda (format obj)
+    (let ((buf (string 1024)))
+      (let ((length (snprintf (long@ buf 4) 1024 format obj)))
+	(set-oop@ buf 0 length)
+	buf))))
+* pretty-print
+
+** primitive の動作
+
+static oop Subr_print(oop args, oop env)
+{
+  oop result= nil;
+  for (args= arglist(args);  isPair(args);  args= getTail(args)) {
+    print(result= car(args));
+    if (isPair(getTail(args))) printf(" ");
+  }
+  return result;
+}
+
+arglist(args) は昔必要だったが今は関係ない。
+
+バッファ
+buffer
+string-port
+
+open-output-bytes
+buffer
+
+* syntax
+
+(compile-expr () (if 1 2 3) *globals*)
+
+* asm-compile.k の動作
+
+./main ./asm-compile.k test-asm-compile.k
+- asm-compile でコマンドライン引き数にあるファイルをコンパイル
+-- eval で新しいネームスペース内に関数を定義する
+--- 関数オブジェクト(パラメータリスト + S式 + バイトコード) の生成。このバイトコードは使われない。
+-- generate-all でネームスペース内の関数を全てコンパイル
+
+- generate-all
+-- generate-one で一つの関数を中間表現に
+-- eval で中間表現をアセンブラ命令として標準出力に書き出す。
+
+関数の例
+((println "hello world!") 0)
+
+中間表現の例
+
+(let ((gen #generator((scope oop@ +0 . +4) (label oop@ +4 . +4) (temps oop@ +8 . +4) (next-temp-index oop@ +12 . +4) (max-temp-index oop@ +16 . +4) (program oop@ +20 . +4) (pc oop@ +24 . +4))))
+  (include gen "cola.s")
+  (main gen)
+  (la gen +1)
+  (data gen)
+  (label gen +1)
+  (bytes gen "hello world!")
+  (text gen)
+  (save gen)
+  (calli gen (quote println))
+  (drop gen +1)
+  (li gen +0)
+  (stop gen))
+
+** generate-one の前後の変化を調べる
+
+* backtrace.k
+$ rlwrap ./main backtrace.k -
+.(test 1)
+
+* describe.k
+$ rlwrap ./main describe.k -
+.(d d)
+.(d *globals* '())
+
+* プロセスの実験
+
+./main test-process.k
+
+* オプション
+
+-vr 読み込み結果
+
+(trace 1) ?
+(trace 2) RETURN?
+(trace 4) byte code trace
+(trace 8) instruction?
+(trace 16) ?
+
+* fibonacci
+
+polymorphic を使ったバージョン
+
+* compile.k の動作を調べる
+
+** 結論
+
+新しいバックエンドを生成するには encode-method を実装すれば良い。exec は Tamarin 内で行う。
+
+;; ひな形 compile.k
+(define encode-method
+  (lambda (method)
+    (let ((literals (array))
+	  (code     (byte-array))
+	  (offset   0)
+	  (pc       method))
+      (encode-literal nil literals)
+      (while pc
+      (println offset)
+	(set-properties-at pc 'branch-offset offset)
+	(set offset (+ 1 offset))
+	(set pc (cdr pc)))
+      (set pc method)
+      (while pc
+	(encode-instruction (car pc) code literals)
+	(set pc (cdr pc)))
+      (cons code literals))))
+
+** 関数の機能
+
+method : バイトコード
+program = (? . method)
+compile expr env = (code . literals) : コンパイラ+アセンブラ
+compile-body body scope env = program : コンパイラ
+encode-method method -> (code . literals) : アセンブラ
+symbol-opcode symbol -> opcode : 命令名からバイトコードを求める
+
+(compile '(+ 3 4) nil) ->
+  (ByteArray(10/16: 01 01 01 02 1f 00 14 00 12 03) . Array(4/16: () +4 +3 +1))
+
+(compile-body '((+ 3 4)) nil *globals*) ->
+  (() (push . +4) (push . +3) (add) (xdrop) (return . +1))
+
+(let ((p '(() (return . 1)))) (compile-program p '((+ 3 4)) *globals*) p) ->
+  (() (push . +4) (push . +3) (add) (xdrop) (return . +1))
+
+(encode-method (cdr '(() (push . +4) (push . +3) (add) (xdrop) (return . +1)))) ->
+  (ByteArray(10/16: 01 01 01 02 1f 00 14 00 12 03) . Array(4/16: () +4 +3 +1))
+
+(compile-body '((if 1 2 3)) nil *globals*) ->
+(() (tick) (drop . +4) (push . +1) (bf (push . +3) (return . +1)) (push . +2) (br ...) ... ..
+
+(symbol-opcode 'pop) -> 
+  5
+
+exec.c: exec(program, stack, environment) 実行
+
+#define get(OBJECT, TYPE,FIELD) の動作:
+OBJECT から FIELD を検索する。TYPE は Array Symbol などの定数
+
+例: get(pop, Symbol,opcode) = gc_check(pop)->_body->_Symbol.opcode)
+
+** 実行例
+
+3 + 4 をコンパイルしてから実行するサンプル
+
+exec.c に exec() の実装がある。
+
+(exec (compile '(+ 3 4) nil) nil)
+(exec (encode-method (cdr (compile-body '((+ 3 4)) nil *globals*))))
+(exec (encode-method (cdr '(() (push . +4) (push . +3) (add) (xdrop) (return . +1)))))
+(exec (encode-method '((push . +4) (push . +3) (add) (xdrop) (return . +1))))
+
+(exec ((byte-array 01 01 01 02 1f 00 14 00 12 03) . (array () 4 3 1)))
+
+(define myexec
+  (lambda (code) (exec (encode-method code) '())))
+
+(myexec
+ '((push . 4)
+   (push . 3)
+   (add)
+   (xdrop)
+   (return . 1)))
+
+* dump (describe)
+
+method.k method2.k で出来たオブジェクトの内容を調べる。
+
+* 小文字を大文字に直すプログラム
+
+標準入出力を使って普通に書く
+lazy-list を使う
+
+* stream の実装
+
+http://srfi.schemers.org/srfi-41/srfi-41.html
+
+* メソッド呼び出しの実験
+
+$ rlwrap ./main boot.k mytest.k
+
+* array は自動的に伸びる
+(let ((a (array))) (set-array-at a 5 "ok") a)
+
+* 外部シンボルの呼び出し
+((extern "printf") "hello world\n")
+
+(define printf (extern "printf"))
+(printf "hello world\n")
+
+* 細かい関数
+キーの検索
+(assq 'a '((a . b) (c . d))) => (a . b)
+
+全てのキー
+(mapcar (lambda (v) (println)) *globals*)
+
+(define mapcar-1
+
+print
+static oop Subr_print(oop args, oop env)

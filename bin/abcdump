@@ -1,0 +1,7 @@
+#!/bin/sh
+# ABCDump
+# ./tamacc.sh -x example/hello.k [-- avmshell args]
+AVM=avmshell
+DIR=$(dirname $0)
+
+$AVM $DIR/abcdump.abc -- $@

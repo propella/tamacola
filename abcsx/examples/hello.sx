@@ -1,0 +1,15 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "hello") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+      (findpropstrict ((package "") "print"))
+      (pushstring "Hello, World!!")
+      (callproperty ((package "") "print") 1)
+      (returnvoid)))
+    )))
+ (script (((init (method 0)) (trait ())))))

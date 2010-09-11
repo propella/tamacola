@@ -1,0 +1,50 @@
+<p align='center'><font face='Times' size='36'><b>;Graphics</b></font></p>
+<font face='Courier New' size='14'>
+(slot-getq (stage) mouseX)
+
+(define random
+  (lambda ()
+    (let ((r (* (send Math random) 256))
+          (g (* (send Math random) 256))
+          (b (* (send Math random) 256)))
+      (+ (+ (* r 65536) (* g 256)) b))))
+
+(define boxes
+  (map
+    (lambda (i)
+      (let ((box (new flash.display/Shape))
+            (angle (/ i 10)))
+        (send (slot-getq box graphics) beginFill (random) 0.2)
+        (send (slot-getq box graphics) drawRect 0 0 50 40)
+        (send (stage) addChild box)
+        (slot-setq! box x (* i 5))
+        (slot-setq! box y (* i 5))
+        (cons box angle)))
+    (iota 80)))
+
+(define step
+  (lambda ()
+    (for-each
+     (lambda (pair)
+       (let ((box (car pair))
+             (angle (cdr pair)))
+         (slot-setq! box rotation (+ (slot-getq box rotation) angle))))
+     boxes)))
+
+(send (stage) addEventListener "enterFrame" step)
+
+(set! boxes
+     (map (lambda (pair) (cons (car pair)
+                               (* (cdr pair) 2)))
+          boxes))
+
+
+
+
+
+
+
+; (send (stage) removeEventListener "enterFrame" step)
+
+;(class MyBox (flash.display/Shape) (angle)
+;       (constructsuper))

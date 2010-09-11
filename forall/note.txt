@@ -1,0 +1,2 @@
+etags -a --language=scheme --regex='/(define[a-zA-Z-]*[ \t]+\(.*\)/\1/' runtime/*.k example/*.k forall/*.k
+

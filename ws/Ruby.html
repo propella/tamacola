@@ -1,0 +1,36 @@
+<p align='center'><font face='Courier New' size='36'><b>Ruby</b></font></p>
+<font face='Courier New' size='12'>
+def nfib(n)
+  if n &lt; 2 then
+     1
+   else
+     nfib(n-2) + nfib(n - 1) + 1
+   end
+end
+
+nfib(10)
+
+def sieve(n) 
+  size = 8190
+  flags = Array.new(size + 1, true)
+  count = 0
+  for iter in 1...n
+    count = 0
+    for i in 1...size
+      if (flags[i])
+        prime = i + 1
+        k = i + prime
+        while (k &lt;= size)
+          flags[k] = false
+          k = k + prime
+        end
+        count = count + 1
+      end
+    end
+  end
+  return count
+end
+
+sieve(3000)
+
+</font>

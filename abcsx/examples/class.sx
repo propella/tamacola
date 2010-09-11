@@ -1,0 +1,100 @@
+;; -*- lisp -*-
+;; New class definition test
+
+(asm
+ (method
+  (((signature ;; method 0 class initializer of Foo
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code ((returnvoid))))
+   
+   ((signature ;; method 1 instance initializer of Foo
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushstring "Hello,")
+      (setproperty ((ns "") "foo"))
+      (returnvoid)))
+      )
+   ((signature ;; method 2 class initializer of Bar
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code ((returnvoid))))
+
+   ((signature ;; method 1 instance initializer of Bar
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (constructsuper 0)
+      (getlocal_0)
+      (pushstring "World!")
+      (setproperty ((ns "") "bar"))
+      (returnvoid)))
+      )
+
+   ((signature ;; method 4 the startup script
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+
+      ;; Foo = { new subclass of Object }
+      (getscopeobject 0)
+      (getlex ((ns "") "Object"))
+      (pushscope)
+      (getlex ((ns "") "Object"))
+      (newclass 0)
+      (popscope)
+      (initproperty ((ns "") "Foo"))
+
+      ;; Bar = { new subclass of Foo }
+      (getscopeobject 0)
+      (getlex ((ns "") "Object"))
+      (pushscope)
+      (getlex ((ns "") "Foo"))
+      (pushscope)
+      (getglobalscope)
+      (getlex ((ns "") "Foo"))
+      (newclass 1)
+      (popscope)
+      (popscope)
+      (initproperty ((ns "") "Bar"))
+
+      ;; local1 = new Bar ()
+      (getlex ((ns "") "Bar"))
+      (construct 0)
+      (setlocal 1)
+
+      ;; print(local1.foo, local1.bar)
+      (getlex ((ns "") "print"))
+      (getlocal 0)
+      (getlocal 1)
+      (getproperty ((ns "") "foo"))
+      (getlocal 1)
+      (getproperty ((ns "") "bar"))
+      (call 2)
+      (returnvalue)
+      ))
+    )))
+ (instance
+  (((name ((ns "") "Foo"))
+    (super_name ((ns "") "Object"))
+    (flags 0)
+    (interface ())
+    (iinit (method 1))
+    (trait
+     (((kind slot) (name ((ns "") "foo")) (slot_id 0) (type_name *) (vindex 0) (vkind 0) (metadata ())))))
+   ((name ((ns "") "Bar"))
+    (super_name ((ns "") "Foo"))
+    (flags 0)
+    (interface ())
+    (iinit (method 3))
+    (trait
+     (((kind slot) (name ((ns "") "bar")) (slot_id 0) (type_name *) (vindex 0) (vkind 0) (metadata ())))))))
+ (class (((cinit (method 0)) (trait ()))
+         ((cinit (method 2)) (trait ()))))
+
+ (script
+  (((init (method 4))
+    (trait (
+            ((kind class) (name ((ns "") "Foo")) (slot_id 0) (classi (class 0)) (metadata ()))
+            ((kind class) (name ((ns "") "Bar")) (slot_id 0) (classi (class 1)) (metadata ()))
+            ))))))

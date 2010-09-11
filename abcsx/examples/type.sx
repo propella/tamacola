@@ -1,0 +1,33 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+      
+      (pushint 1) (istype ((package "") "int"))
+      (iftrue L1)
+
+      (getlex ((package "") "print")) (getlocal 0) (pushstring "**1 is not int???**") (call 1) (pop)
+      (jump L2)
+
+      L1
+      (getlex ((package "") "print")) (getlocal 0) (pushstring "1 is int! ok.") (call 1) (pop)
+
+      L2
+      (pushdouble 1.0) (istype ((package "") "int"))
+      (iftrue L3)
+
+      (getlex ((package "") "print")) (getlocal 0) (pushstring "1.0 is not int!") (call 1) (pop)
+      (jump L4)
+      
+      L3
+      (getlex ((package "") "print")) (getlocal 0) (pushstring "1.0 is int??? ...o.k. for now...") (call 1) (pop)
+
+      L4
+      (returnvoid)
+      )))))
+ (script (((init (method 0)) (trait ())))))

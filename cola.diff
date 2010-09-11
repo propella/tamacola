@@ -1,0 +1,46 @@
+Index: cola.c
+===================================================================
+--- cola.c	(revision 114)
++++ cola.c	(working copy)
+@@ -2656,7 +2656,26 @@
+ 	  char *ptr= get(string, String,bits);
+ 	  while (*ptr) value= value << 8 | *ptr++;
+ 	  return newLong(value);
++	} else if ('x' == peek(stream)) {
++	  buffer_reset(&buffer);
++	  for (;;) {
++	    buffer_append(&buffer, c);
++	    c= getc(stream);
++	    switch (c) {
++	    case '0' ... '9':
++	    case 'a' ... 'f':  case 'A' ... 'F': case 'x':		continue;
++	    default:							goto donex;
++	    }
++	  }
++	donex:
++	  *buffer_contents(&buffer)= '0';
++	  ungetc(c, stream);
++	  char *ep= 0;
++	  long l= strtoul(buffer_contents(&buffer), &ep, 0);
++	  if (!*ep) return newLong(s ? -l : l);
++	  return intern(buffer_contents(&buffer));
+ 	}
++
+ 	/* fall through... */
+       }
+       symbol:
+Index: Makefile
+===================================================================
+--- Makefile	(revision 114)
++++ Makefile	(working copy)
+@@ -2,8 +2,8 @@
+ 
+ OFLAGS =
+ UNAME  = $(shell uname)
+-CFLAGS = -Wall -g $(OFLAGS)
+-LDLIBS = -lffi
++CFLAGS = -m32 -Wall -g $(OFLAGS)
++LDLIBS = -m32 -lffi
+ 
+ ifeq ($(UNAME),Darwin)
+   CFLAGS += -gstabs -mdynamic-no-pic -I/usr/include/ffi -DMACOSX=1 -fno-stack-protector

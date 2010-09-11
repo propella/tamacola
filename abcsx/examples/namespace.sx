@@ -1,0 +1,36 @@
+;; RTQName test -*- lisp -*-
+
+;; ns = new Namespace ("avmplus");
+;; ns::System.write("Hello World!\n");
+
+(asm
+ (method
+  (((signature ((return_type *) (param_type ()) (name "") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal_0)
+      (pushscope)
+
+      ;; local1 = new Namespace ("avmplus");
+      (getlex ((ns "") "Namespace"))
+      (pushstring "avmplus")
+      (construct 1)
+      (coerce ((ns "") "Namespace"))
+      (setlocal 1)
+
+      ;; push local1::System
+      (getlocal 1)
+      (coerce ((ns "") "Namespace"))
+      (findpropstrict (rtqname "System"))
+      (getlocal 1)
+      (coerce ((ns "") "Namespace"))
+      (getproperty (rtqname "System"))
+
+      ;; push "Hello, World!\n"
+      (pushstring "Hello, World!\n")
+
+      ;; call "write"
+      (callproperty ((ns "") "write") 1)
+
+      (returnvalue)
+      )))))
+ (script (((init (method 0)) (trait ())))))

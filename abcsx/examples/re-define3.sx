@@ -1,0 +1,38 @@
+; -*- lisp -*-
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "re-define3") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+      
+      (getglobalscope) ;; (= getlocal 0) Same slot name overriden is ignored.
+      (pushstring "** BAD! override global scope should be ignored. **")
+      (setproperty ((ns "") "x"))
+      
+      (getlex ((ns "") "print")) ;; Shows "Hello, World!" defined at re-define2.sx
+      (pushnull)
+      (getlex ((ns "") "x"))
+      (call 1)
+      (pop)
+      
+      (getlex ((ns "") "print")) ;; Shows a value defined at re-define1.sx
+      (pushnull)
+      (getlex ((ns "") "y"))
+      (call 1)
+      (pop)
+      
+      (getlex ((ns "") "print")) ;; Shows a value defined at re-define2.sx
+      (pushnull)
+      (getlex ((ns "") "z"))
+      (call 1)
+      (pop)
+      
+      (returnvoid)
+      )))))
+ (script (((init (method 0))
+           (trait (
+                   ((kind slot) (name ((ns "") "x")) (slot_id 1) (type_name *) (vindex 0) (metadata ()))
+                   ))))))

@@ -1,0 +1,19 @@
+<p align='center'><font face='Times' size='36'><b>Tamarin API</b></font></p>
+
+<font face='Courier New' size='18'>
+(jump "../boot/syntax.g")
+
+<b>(send obj selector args ...)</b>
+obj.selector(args ...)
+
+<b>(slot-getq obj property)</b>
+obj.property
+
+<b>(slot-get obj property)</b>
+obj[property]
+
+<b>(slot-setq! obj property value)</b>
+obj.property = value
+
+<b>(slot-set! obj property value)</b>
+obj[property] = value

@@ -1,0 +1,84 @@
+abcsx - The ActionScript Byte Code assembler / disassembler in Scheme
+
+This is a set of tools to examine Adobe's ABC format file.
+
+* Usage
+
+abcsx.ss filename.sx
+
+Generate ABC binary file from ASM-form or ABC-form (described
+below). The output file name is filename.sx.abc.
+
+abcsx.ss -dump [-abc] filename.abc
+
+Desassemble an abc file. The output is printed to stdout. If -abc
+option is specified, ABC-form (described below) is chosen.
+
+runasm.sh filename.sx
+
+Assemble ASM-form or ABC-form and execute it by avmshell. It requires
+avmshell installed. Avmshell is included in Tamarin VM's source tree.
+
+swf_abc.erl width height classname abcfile.abc
+
+An helper program to generate a flash file from an abc file. It
+requires Erlang.
+
+* File Format
+
+There are two kinds of representation to describe a ABC file. You can
+use either way depend on the purpose. Asm.ss accepts both format.
+
+ASM-form : A (relatively) human friendly notation
+
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "hello") (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+      (findpropstrict ((package "") "print"))
+      (pushstring "Hello, World!!")
+      (callproperty ((package "") "print") 1)
+      (returnvoid))))))
+ (script (((init (method 0)) (trait ())))))
+
+ABC-form : One-to-One translation to S-expression
+
+(abc
+ (minor_version 16)
+ (major_version 46)
+ (constant_pool
+  ((integer ())
+   (uinteger ())
+   (double ())
+   (string ("hello" "" "print" "Hello, World!!"))
+   (namespace ((package (string 2))))
+   (ns_set ())
+   (multiname (((namespace 1) (string 3))))))
+ (method
+  (((return_type (multiname 0)) (param_type ()) (name (string 1)) (flags 0) (options ()) (param_names ()))))
+ (metadata ())
+ (instance ())
+ (class ())
+ (script (((init (method 0)) (trait ()))))
+ (method_body
+  (((method 0) (max_stack 2) (local_count 1) (init_scope_depth 0) (max_scope_depth 1) (code
+     ((getlocal 0)
+      (pushscope)
+      (findpropstrict (multiname 1))
+      (pushstring (string 4))
+      (callproperty (multiname 1) 1)
+      (returnvoid)))
+    (exception ())
+    (trait ())))))
+
+* Platforms
+
+PLT-Scheme (mzscheme) 4.2.1
+Gauche 0.8.13
+
+* Bugs
+
+Constant slots (vkind) is not supported properly in the ASM-form writer.
