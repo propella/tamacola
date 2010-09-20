@@ -26,7 +26,9 @@ stage().addEventListener("enterFrame", step);
 ;;; Switch the grammar to PEG
 gdigit	= [012345678] 
 
-golly   = _ "B" gdigit*:b "/" "S" gdigit*:s    -> (let ((f (lambda (n s) `(,@s (= n ,(- n #"0"))))))
+g_	= [ \t\n\r]*
+
+golly   = g_ "B" gdigit*:b "/" "S" gdigit*:s    -> (let ((f (lambda (n s) `(,@s (= n ,(- n #"0"))))))
                                                     (cons (fold f '(#f) (->list b))
       	       		     	 	     	          (fold f '(#f) (->list s))))
 
