@@ -141,12 +141,12 @@
   symbol0
   ()
   (CLASS
-   "-!$#%&*+/<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~"))
+   "-!$#%&*+/<=>?:@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~"))
  (define-rule
   symbol1
   ()
   (CLASS
-   "-!$#%&*+/<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~0123456789."))
+   "-!$#%&*+/<=>?:@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~0123456789."))
  (define-rule
   symbol
   (s)

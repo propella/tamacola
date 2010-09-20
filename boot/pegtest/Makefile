@@ -1,6 +1,6 @@
 COLA = ../../cola.sh
 
-all : peg boot grammar num struct plus calc sexp
+all : peg boot grammar num struct plus calc
 
 boot :
 	$(COLA) peg-boot-test.k
@@ -19,9 +19,6 @@ plus :
 
 calc :
 	$(COLA) calc-test.k < /dev/null
-
-sexp :
-	$(COLA) sexp-test.k
 
 grammar :
 	$(COLA) peg-grammar-test.k

@@ -9,6 +9,7 @@
 (check (parse-collection peg/sexpr "symbol1number ") => 'symbol1number)
 (check (parse-collection peg/sexpr "symbol.dot ") => 'symbol.dot)
 (check (parse-collection peg/sexpr "symbol/slash ") => (string->symbol "symbol/slash"))
+(check (parse-collection peg/sexpr "symbol:colon ") => (string->symbol "symbol:colon"))
 (check (parse-collection peg/sexpr "/// ") => '///)
 (check (parse-collection peg/sexpr "\"string\" ") => "string")
 (check (parse-collection peg/sexpr "42 ") => 42)

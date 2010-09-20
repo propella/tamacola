@@ -96,7 +96,7 @@ test : test.k particles.abc
 	$(MAKE) -C ../stage2 mkpeg.swf
 
 test-infix : tamacola
-	$(TAMACOLA) ../stage2/mkpeg.k infix.g
+	$(TAMACOLA) ../stage2/mkpeg.k -n infix infix.g
 	$(TAMACOLA) infix.k infix-test.k
 
 test-macro-shell : tamacola
@@ -104,8 +104,20 @@ test-macro-shell : tamacola
 	rm macro-shell2.abc
 	$(TAMACOLA) macro-shell1.k macro-shell2.k
 
+# S-expression test
+
+test-sexp : tamacola
+	$(TAMACOLA) ../stage2/mkpeg.k -n sexp sexp.g
+	$(TAMACOLA) sexp.k sexp-test.k
+
+# SmallerTalk test
+
+test-st : tamacola
+	$(TAMACOLA) ../stage2/mkpeg.k -n st st.g
+	$(TAMACOLA) st.k st-test.k
+
 tamacola :
 	$(MAKE) -C ../stage2 tamacola
 
 clean :
-	rm -f *.abc *.swf infix.k
+	rm -f *.abc *.swf infix.k sexp.k st.k

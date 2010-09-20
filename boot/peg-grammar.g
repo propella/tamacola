@@ -83,8 +83,8 @@ character-literal = "#\"" character:c "\"" _ -> c
 class		= "[" (!"]" character)* :s RBRACK -> (->string s)
 string		= "\"" (!"\"" character)* :s QUOTEDBL -> (->string s)
 
-symbol0		= [-!$#%&*+/<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~]
-symbol1		= [-!$#%&*+/<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~0123456789.]
+symbol0		= [-!$#%&*+/<=>?:@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~]
+symbol1		= [-!$#%&*+/<=>?:@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\^_abcdefghijklmnopqrstuvwxyz|~0123456789.]
 symbol		= ( symbol0 symbol1* )@:s _ -> (intern (->string s))
 
 sexpr		= double

@@ -91,7 +91,7 @@
   (lambda (self c)
     (send (string-output-buffer self)
           push
-          (send String fromCharCode c)) ; todo: (string c)
+          (char->string c))
     (set-string-output-position self (+ (string-output-position self) 1))))
 
 (define-method next-put-all typeof-string-output

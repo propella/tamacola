@@ -126,6 +126,16 @@
     (let ((reversed (reverse lst)))
       (fold fn z reversed))))
 
+;; (define fold-left ;; [r6rs-lib(-)]
+;;   (lambda (f z lst)
+;;     (if (pair? lst)
+;;         (fold-left f (f z (car lst)) (cdr lst))
+;;         z)))
+
+(define fold-left ;; [r6rs-lib(-)]
+  (lambda (f z lst)
+    (fold (lambda (l r) (f r l)) z lst)))
+
 ;; Make sure lst is evaluated left to right.
 (define map
   (lambda (fn lst)
@@ -289,6 +299,9 @@
 
 (define string? ;; [r6rs]
   (lambda (v) (instanceof v String)))
+
+(define char->string ;; todo: rename it to string (r6rs) later.
+  (lambda (c) (send String fromCharCode c)))
 
 (define string-length ;; [r6rs]
   (lambda (str) (slot-getq str length)))

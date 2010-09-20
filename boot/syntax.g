@@ -39,7 +39,7 @@ params = '( is-symbol*:xs )                     -> (frame-push *parser* (new-fra
 
 lambda_ = 'lambda params body :xs               <make-lambda "" xs>:id
                                                 -> `((newfunction (method ,id)))
-        | 'lambda:k .*:xs                       <malform k xs> 
+        | 'lambda :k .*:xs                      <malform k xs> 
 
 define_lambda = 'define slotname:n '( 'lambda params body :xs )
                                                 -> (cadr n):name
@@ -57,7 +57,7 @@ let_    = 'let '( bindings ):bs  body:xs        -> (env-frame-top *parser*) :fra
                                                 -> (enable-activation *parser* frame xs) :xs
                                                 -> (block-pop *parser*)
                                                 -> `(,@bs ,@xs)
-        | 'let:k .*:xs                          <malform k xs> 
+        | 'let :k .*:xs                         <malform k xs> 
 
 script = body :xs                               -> (push-vars *parser* ()) ;; todo: maybe push-var is needed before body is compiled
                                                 -> (env-frame-top *parser*) :frame

@@ -140,6 +140,7 @@
 (check (delete 3 '()) => '())
 
 (check (fold-right cons '() '(1 2 3 4 5)) => '(1 2 3 4 5))
+(check (fold-left  (lambda (xs x) (cons x xs)) '() '(1 2 3 4 5)) => '(5 4 3 2 1))
 
 (check (filter (lambda (x) (== (& x 1) 0)) (list 3 1 4 5 9 2 6)) => (list 4 2 6))
 
@@ -167,6 +168,7 @@
 (check (string->list "ABC") => (list 65 66 67))
 (check (string->list "ABC") => (list #"A" #"B" #"C"))
 (check (list->string (list #"A" #"B" #"C")) => "ABC")
+(check (char->string 65) => "A")
 (check (string-join (list "Hello," "World!" "more!!") " ") => "Hello, World! more!!")
 
 (check (number->string 42) => "42")

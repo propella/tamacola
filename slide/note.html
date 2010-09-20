@@ -1,0 +1,421 @@
+<pre>
+
+todo: why disassembler was written in same time
+todo: S-expression
+todo: test script convention
+
+</pre>
+
+<h3>Tamacola (1)</h3>
+
+<h4>Table of Contents</h4>
+<ul>
+<li><a href="http://propella.blogspot.com/2010/09/tamacola-1.html">Intro, How I started the assembler</a></li>
+<li><a href="http://propella.blogspot.com/2010/09/tamacola-2.html">COLA</a></li>
+<li><a href="http://propella.blogspot.com/2010/09/tamacola-3.html">How a lisp program is compiled to Tamarin VM</a></li>
+<li><a href="http://propella.blogspot.com/2010/09/tamacola-4.html">Tamacola in Tamacola, Bootstrapping Macros, Eval</a></li>
+</ul>
+
+<h4>Intro</h4>
+
+<p>I have published the source code of Tamacola, a lisp compiler which
+runs on Adobe Flash / Tamarin VM (or Adobe Virtual Machine 2) <a
+href="http://github.com/propella/tamacola">http://github.com/propella/tamacola</a>. I'm
+pretty sure that the current version is useless if you are just
+looking for a lisp implementation on Tamarin (las3r and scheme-abc are
+much better), but Tamacola includes abundant tips if you are
+interested in making a self-hosting compiler on Tamarin VM. That's why
+I decided to publish it as-is.</p>
+
+<p>I'm also working on a presentation slide for S3 conference
+<a href="http://www.hpi.uni-potsdam.de/hirschfeld/s3/s3-10/">http://www.hpi.uni-potsdam.de/hirschfeld/s3/s3-10/</a> to show it. I'm writing
+random thoughts about the compiler here so that I will compile them to
+a thread of talk.</p>
+
+<p>I've already written the motivation on the paper (perhaps I will paste
+the URL in a month) so I don't repeat it. But in short, I wanted make
+a tiny language which bootstraps and runs on Adobe Flash.</p>
+
+<p>A tiny language and bootstrapping seem contradicting idea as
+bootstrapping requires various language functions which tends to be
+large. On the other hand, this is practically a nice constrain because
+it keeps the language from too simple or too fat. Choosing Scheme like
+language as a target is natural to me because I wanted to concentrate
+basic implementation technique instead of language design.</p>
+
+<p>Well, as one reviewer of the paper said, this is not particularly
+surprising or dramatically different in comparison with previous
+systems in the area, but some of the stories from the compiler should
+interest you!</p>
+
+<h4>How I started the assembler</h4>
+
+<p>In the beginning I created the assembler. Honestly, I wanted to avoid
+the task because writing assembler seemed not quite an interesting
+job. But in that time, I couldn't find a nice AVM2 assembler that
+suite my project. So I've done it. In retrospect, this was not bad at
+all. I could understand what avm2overview.pdf (the AVM2 specification)
+said quite well, and I got self confidence.</p>
+
+<p>I wrote my assembler in PLT-Scheme because Ian Piumarta's COLA
+(Tamacola was supposed to be written in COLA and Tamacola itself, I'll
+tell you this later) is not finished yet in that time and Duncan Mak,
+a friend of mine, recommend it. This was actually a good choice. This
+is my first Scheme application and PLT's good documentation helped me
+a lot.</p>
+
+<p>An interesting part of PLT-Scheme was it encourages a functional
+programming style, even PLT doesn't suppport set-car! and set-cdr! in
+the default library. So it was natural that my assembler was written
+without side-effect except I/O. This is the first key of the
+development of the assembler. Unfortunately, because Tamarin doesn't
+support tail-recursion optimazion and Tamarin's stack size is small, I
+gave up to eliminate all side-effect later. But the implementation was
+pure functional up to the time, and it was quite clean.</p>
+
+<p>Indeed, it had to be clean considering boot-strapping. I wanted to
+make the assembler run in my language itself even before enough
+debugging facility is not ready. If it were not clean, a tiny bug
+would cause a few days of debugging. I avoided the nightmare with a
+functional style and Test Driven Development.</p>
+
+<p>Test Driven Development is the second key. I virtually wrote every
+test case for each function even if it looks silly. Scheme has a
+couple of options of testing frame work. I chose SRFI-78. It only
+report assertion failer only something happen, otherwise it keeps
+silence. I somewhat like this UNIX taste terse.</p>
+
+<p>The third key was to write an assembler and a disassembler in a same
+time. It sounds like an unnecessary job because I only needed an
+assembler eventually. But I had to analyze an output from asc (an
+asembler in Adobe Flex) and learn how an ActionScript program was
+converted to the Tamarin byte-code. The disassembler was very helpful
+to read the byte-code as well as debugging. If output of the
+disassembler generates the original byte-code by the assembler, there
+is high chance that my imprementation is correct, unless my
+understanding is wrong.</p>
+
+<p>The assembler is named ABCSX <a
+href="http://github.com/propella/abcsx">http://github.com/propella/abcsx</a>
+and it was ported to Gauche, COLA, and Tamacola later. I ported it to
+Gauche because I was curious about portability of Scheme language.</p>
+
+<p>I had realized there are many places where I could reduce code
+redundancy in the assembler. An assembler tends to include repetitive
+process, but some of them are not quite captured well by function
+abstraction. I would be effective to apply macro and domain specific
+language in those part. I didn't have tried to solve it yet, but I
+want to solve it later.</p>
+
+<p>(to be continued)</p>
+
+
+
+
+<h3>Tamacola (2)</h3>
+
+<h4>COLA</h4>
+
+<p>Once the assembler was done, I was able to test verious Tamarin VM's
+features, even I wrote a tiny GUI application on Adobe Flash in the
+assembler. Then next step is the compiler.</p>
+
+<p>Another goal of the project was to port Ian Piumarta's COLA framework
+to Tamarin (the project name came from this). And perhaps this is only
+the real technical contribution of the project. COLA is a meta
+language (a programming language to design another language) which
+resembles Scheme. COLA has a nice sub-language called Parser
+Expression Grammar that makes parser very terse. My plan was to write
+a boot-strappng compiler in PEG and COLA, then to implement COLA
+library, and to write the real compiler in PEG and Tamacola itself.</p>
+
+<p>I won't give you the detail of PEG. But briefly, it is as simple as a
+regular expression and as powerful as a context free grammar.</p>
+
+<p>When that time I started writing the compiler, COLA has no library at
+all except PEG framework, so I needed to write necessary libraries by
+myself from scratch. Fortunately COLA has quite a powerful external
+function call feature (a kind of FFI), macro sysytem, and a flexible
+object oriented framework. So writing library is not so hard. But I
+tried not to use COLA specific features as possible because it would
+be a problem when I rewrite the compiler in Tamacola itself later.</p>
+
+<p>To implement the library, I borrowed function specifications from R6RS
+as well as possible to avoid unnecessary confusion. There were
+exception because COLA treat a slash "/" character as special for
+namespaces, I took PLT's function names in this case.</p>
+
+<p>Writing lisp libraries is interesting puzzle to me because there were
+some requirements and constrain for the domain. Those requiments are:</p>
+
+<ul>
+<li>Unit testing framework.</li>
+<li>Library framework.</li>
+<li>List manipulations.</li>
+<li>String functions.</li>
+<li>Bit operations and streams.</li>
+<li>Pretty printer for debugging.</li>
+</ul>
+
+<p>These requirements were carefully chosen. Because COLA has only modest
+debugging facility, the unit test framework must be there. So my first
+goal was to implement all functions needed by the unit testing. I
+needed a pretty printer for debugging, too.</p>
+
+<p>Another "must have" library was bit operators, and file / in-memory
+streams that is needed to the assembler. Interestingly enough, R6RS
+doesn't define enough functions to support those. For example, there
+are no portable way to specify a stream to be binary or text. So I
+needed a bit creativity.</p>
+
+<p>Eventually, I wrote all libraries and the compiler. And I got a pretty
+good sense about a minimun set of functions needed for compiler, which
+are testing framework, pretty printer, bit operators, and streams. In
+other words, if your language has those features, your language can be
+self-hosting.</p>
+
+<p>The real puzzle part was the order. Those requirements must be
+precisely ordered by need. For example, the pretty printer must follow
+stream and string functions because the pretty printer uses those
+functions. Although you can write functions in random order as you
+like in Lisp, precise order makes testing and debugging is easy.  I
+kept this discipline.  I even implemented the test library twice, the
+first one was concise assert function, and the second one has more
+friendly fail message by the pretty printer.</p>
+
+<p>It took a few weeks to build a simple compiler, but still there were
+long way up to the point where self-hosting can be done. One thing
+that I had learned from the stage was, even without debugger,
+debugging is not so hard if you have enough test cases and a good
+pretty printer.</p>
+
+
+
+
+
+
+
+
+
+
+<h3>Tamacola (3)</h3>
+
+<h4>How a lisp program is compiled to Tamarin VM</h4>
+
+<p>Now I'm going to talk a bit about how a lisp (almost Scheme) program
+is compiled into Tamarin's byte code. This topic is especially
+interesting if you are curious to make your own language or VM.</p>
+
+<p>Tamarin VM is made for ActionScript, so its byte code is also
+specifically designed for ActionScript. In other words, it is a
+slightly tricky to implement other language than ActionScript.  In
+case if you don't know about ActionScript, it is almost identical as
+JavaScript in the execution model. Difference between them is about
+optimization with explicit type notion and static field.</p>
+
+<p>ActionScript and Scheme are common for those aspects:</p>
+
+<ul>
+<li>Lexical scope.</li>
+<li>Function object.</li>
+<li>Variable arguments with no curring.</li>
+<li>Dynamic typing (a value has type, not variable).</li>
+</ul>
+
+<p>But there are significant difference.</p>
+
+<ul>
+<li>ActionScript doesn't have a simple function call. Everything is a method call.</li>
+<li>In ActionScript, a function has a scope. No scope block or let expression.</li>
+<li>Tail call optimization is not supported.</li>
+<li>Call stack can not be accessed.</li>
+</ul>
+
+<p>Those limitations sound like that Tamarin VM is inferior. But no,
+actually those limitations come from Tamarin VM's advantage and
+optimization.  If you happen to have a chance to design your VM, please
+learn from the lesson. There ain't no such thing as a free
+optimization. Any optimization kills some generality. I'll explain each
+case.</p>
+
+<p>ActionScript doesn't have a simple function call neither Tamarin
+VM. This is rather harmless though. When you see a function like
+expression like <code>trace("hello")</code>, this is actually mean
+<code>(the global object).trace("hello")</code>, and eventually, the
+receiver passes to the function as the first argument. In other words,
+if you want to construct a function call with two arguments, you need
+to make three arguments where the first argument is "this" object.  A
+slightly tricky part is primitive operators like + or -, which don't
+have "this" object. Those primitives are special case.</p>
+ 
+<p>ActionScript also has lexical scope, but only a function has a
+scope. So I have to be careful when I compile let expression in
+Scheme. Most simplest way to implement a let expression is to use a
+function. A let expression can be always translated to a lambda in
+theory though, this is a huge performance disadvantage. So I use
+"with" expression in ActionScript. "With" expression is an unpopular
+syntax in ActionScript, but you can use any object as a scope
+object. I borrowed this idea from Happy-ABC project <a
+href="http://github.com/mzp/scheme-abc">http://github.com/mzp/scheme-abc</a>.</p>
+
+<p>Lack of the tail call optimization in Tamarin VM was the most
+disappointed thing to me. It prevents a functional programming
+style. I simply gave up it. Tail call optimization is not difficult
+topic at all. If the target were a native code like x86, it would be a
+matter of swapping stack and jump. But Tamarin VM doesn't allow direct
+access of stack or jump to other function. I understand that it might
+cause a security issue though, it would be wonderful if VM would provide
+special byte code for tail call.</p>
+
+<p>Finally, you can't access the call stack directly, therefore you can't
+implement call/cc.  The reason why I can't call Tamacola as Scheme is
+the lack of tail call optimization and call/cc. It prevents many
+experimental language features like generator, process, or so. But
+considering rich libraries provided by the Flash API, I would say
+Tamacola will be a reasonably useful language eventually.</p>
+
+<p>I'll tell you convolved self hosting process and macros tomorrow.</p>
+
+
+
+
+
+
+
+
+
+
+<h3>Tamacola (4)</h3>
+
+<h4>Tamacola in Tamacola</h4>
+
+<p>After I made the Tamacola compiler written in COLA, next thing to do
+was to implement it in Tamacola itself. A language is called
+self-hosting if the language is written in the language itself. This
+implies various advantage.</p>
+
+<p>First, once self-hosting is done, you don't need to use COLA anymore,
+you can improve or modify any language aspects on Tamarin VM. If I
+carefully design the environment, it would be possible to do language
+design only on the Web browser (it needs server side help for security
+reason, so it hasn't done yet).</p>
+
+<p>Second, self hosting is a benchmark for the language to tell that it
+is good enough. Scheme is especially simple language, so there are a
+lot of people who implement toy-Scheme. But because my Tamacola is now
+self-hosting, I could proudly claim that this is not a toy! Well, this
+is rather self satisfaction, though.</p>
+
+<p>Third, it provides a rich library including "eval" function. A
+compiler uses various programming techniques, and those must be useful
+for other programs, too.</p>
+
+<p>To make it self-hosting, there were two key problem which are macros
+and eval.</p>
+
+<h4>Bootstrapping Macros</h4>
+
+<p>I heavily used macros in my compiler, for example, the parser written
+in PEG was converted a bunch of macro expressions. The problem is,
+expanding macros requires eval function but I wasn't able to make eval
+before the parser was done. It's a deadlock! Here is a typical macro
+written in COLA:</p>
+
+<pre>
+(define-form begin e (cons 'let (cons '() e)))
+</pre>
+
+This is how the macro works. When the compiler find a expression like:
+
+<pre>
+(begin
+  (print "Hello")
+  (print "World"))
+</pre>
+
+Expressions inside <code>begin</code> is bound to <code>e</code>, the
+body <code>(cons 'let (cons '() e))</code> is executed in compile time
+and the expression is expanded to:
+
+<pre>
+(let ()
+  (print "Hello")
+  (print "World"))
+</pre>
+
+<p>Such expansion is impossible without eval function because the
+compiler need to evaluate a list <code>(cons 'let (cons '() e))</code>
+given by user. What I would do when I didn't have eval yet.  But I
+realized that macros only include basic list functions like car, cdr,
+and cons in many cases. And a more complicated macro could be hard
+corded as a special form in the compiler. So I invented a pattern base
+macros.</p>
+
+<pre>
+(define-pattern ((begin . e) (let () . e)))
+</pre>
+
+<p>Basically this is a subset of Scheme's syntax-rule. If the compiler
+finds an expression starting with <code>begin</code>, rest of the
+expression is bound to <code>e</code> and substituted as a right hand
+side. Those expansion requires only limited set of list functions, so
+the compiler doesn't have to provide full eval function. This macro
+syntax made my compiler readable, and I was able to continue happily.</p>
+
+<p>Even after I implemented more dynamic traditional macro with eval
+function, I keep using this pattern base macros mainly.</p>
+
+<h4>Eval</h4>
+
+<p>To implement eval function, you need to understand the dynamic code
+loading facility provided by the VM. Note that this is not part of
+AVM2 specification, and Avmshell (a console Tamarin shell program) and
+Adobe Flash have different API.</p>
+
+<p>Avmshell has straightforward API. You give compiled byte code, and the
+function returns the value. Because Tamacola is now written in
+Tamacola, you can invoke the compiler as a library function and get
+byte code you want to execute.</p>
+
+<pre>
+avmplus.Domain.loadBytes(byteArray:ByteArray)
+</pre>
+
+<p>You can get the domain object by Domain.currentDomain() static method.
+Those useful functions in Avmshell are found <code>shell/</code>
+directory in the Tamarin-central repository.</p>
+
+<p>Flash Player has somewhat tricky API for dynamic code loading. The
+signature is normal.</p>
+
+<pre>
+flash.display.Loader.loadBytes(bytes:ByteArray, context:LoaderContext = null):void
+</pre>
+
+<p>There are two problems for our purpose. First, this method is not
+designed mainly for dynamic loading, it only accepts SWF, JPG, PNG, or
+GIF files, and byte code happen to be accepted inside a SWF file. So I
+had to construct SWF file to load code. In case if you don't know
+about SWF file, SWF file is a kind of container format. You can
+embedded vector graphics, mp3 sounds, and ActionScript byte
+code. Making a SWF file is not particularly difficult though, it needs
+nasty bit fiddling.</p>
+
+<p>Second, this is far more problematic, is that this method works as
+asynchronously. In other words, this doesn't return the result
+value. Instead, you need to give it a callback function to wait to
+finish the code. Additionally, this method doesn't return value at
+all, so if you want the return value, you need to setup some explicit
+return mechanism by yourself.</p>
+
+<p>Practically, this cause a problem if you want to write a traditional
+macro definition and use the macro in a same source code. Because a
+traditional macro need to evaluate a lisp expression in a compile
+time, but the eval function doesn't return before the compilation
+thread is done. I could solve the problem by setting up compilation
+queue or something, but it would cost performance penalty which I
+don't want. And now I simply gave up.</p>
+
+<p>I have explained pretty much all interesting aspect of the self
+hosting compiler. I'll talk about how to make a new language on the
+Tamacola environment later.</p>
