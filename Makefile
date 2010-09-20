@@ -42,7 +42,7 @@ test-old :
 	time $(MAKE) -C stage2 clean goal
 
 clean :
-	rm -f bin/tamacc bin/tamacc.swf bin/mkswf bin/mkswf.swf
+	$(MAKE) -C bin clean
 	$(MAKE) -C boot clean
 	$(MAKE) -C abcsx clean
 	$(MAKE) -C runtime clean

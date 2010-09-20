@@ -92,8 +92,8 @@ expr3   = define_lambda
         | let_
         | class_
 
-        | 'define slotname:n expr:e            <define-global n e>
-        | 'define:k .*:xs                       <malform k xs>
+        | 'define slotname:n expr:e             <define-global n e>
+        | 'define :k .*:xs                      <malform k xs>
         | 'quote .:x                            -> (q-object x):q
                                                 <expr q>
 	| 'quasiquote .:x                       -> (qq-object x):q
@@ -101,7 +101,7 @@ expr3   = define_lambda
         | 'if expr:t expr:x expr:y              -> (new-label) :a
                                                 -> (new-label) :b
                                                 -> `(,@t (iffalse ,a) ,@x (coerce_a) (jump ,b) ,a ,@y (coerce_a) ,b)
-        | 'if:k .*:xs                           <malform k xs>
+        | 'if :k .*:xs                          <malform k xs>
         | 'while expr:t body:xs                 -> (new-label) :a
                                                 -> (new-label) :b
                                                 -> `((jump ,b)
@@ -115,11 +115,11 @@ expr3   = define_lambda
                                                     (pushundefined))
         | 'set! is-symbol:n expr:xs             -> (make-setter *parser* n):insts
                                                 -> `(,@xs ,@insts (pushundefined))
-        | 'set!:k .*:xs                         <malform k xs>
+        | 'set! :k .*:xs                        <malform k xs>
         | 'define-macro is-symbol:n .:f         -> (meta-define-macro *parser* n f)
-        | 'define-macro:k .*:xs                 <malform k xs>
+        | 'define-macro :k .*:xs                <malform k xs>
         | 'define-pattern .*:f                  -> (meta-define-pattern *parser* (->list f))
-	| 'define-pattern:k .*:xs		<malform k xs>
+	| 'define-pattern :k .*:xs		<malform k xs>
         | 'assemble .*:xs                       -> (->list xs)
 
         | '==      expr:x expr:y                -> `(,@x ,@y (equals))
@@ -176,7 +176,7 @@ expr3   = define_lambda
                                                      ,@catch
                                                      (popscope)
                                                      ,l4)
-        | 'try-catch:k .*:xs                    <malform k xs>
+        | 'try-catch :k .*:xs                   <malform k xs>
         | 'throw expr:x                         -> `(,@x (throw))
         | 'undefined? multiname:n               -> `((findproperty ,n)
                                                      (getproperty ,n)

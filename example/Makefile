@@ -49,7 +49,7 @@ run :
 test-redefine : re-define1.abc re-define2.abc re-define3.abc
 	$(AVM) $^
 
-rest : hello-swf interactive calcFlash benchmark
+rest : test-infix test-sexp test-st hello-swf interactive calcFlash benchmark
 
 benchmark :
 	time $(TAMACC) $(BENCH).k
