@@ -10,6 +10,7 @@ This program is tested with Flash Player 10 and Tamarin 714
 - bin/tamacola Tamacola Shell
 - bin/mkswf SWF Archiver
 - bin/abcsx ABCSX assembler
+- bin/mkpeg PEG to Tamacola Converter
 
 * build
 

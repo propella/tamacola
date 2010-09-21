@@ -2,7 +2,7 @@
 #
 # todo: write rules to build from the boot stage.
 
-TARGET = tamacola tamacola.swf tamacc tamacc.swf mkswf mkswf.swf abcsx abcsx.swf
+TARGET = tamacola tamacola.swf tamacc tamacc.swf mkswf mkswf.swf abcsx abcsx.swf mkpeg mkpeg.k
 
 all : $(TARGET)
 
@@ -15,6 +15,8 @@ tamacc : ../runtime/tamacc
 mkswf : ../runtime/mkswf
 	cp $< $@
 abcsx : ../runtime/abcsx
+	cp $< $@
+mkpeg : ../runtime/mkpeg
 	cp $< $@
 
 # SWF binary files
@@ -31,6 +33,8 @@ mkswf.swf : .FORCE
 abcsx.swf : .FORCE
 	$(MAKE) -C ../stage2 $@
 	cp ../stage2/$@ .
+mkpeg.k : ../runtime/mkpeg.k
+	cp $< $@
 
 clean :
 	rm -f $(TARGET)

@@ -2,7 +2,8 @@ AVM = avmshell
 TAMACC = ../bin/tamacc
 ABCRUN = $(TAMACC) -x
 MKSWF = ../bin/mkswf
-TAMACOLA = ../stage2/tamacola
+TAMACOLA = ../bin/tamacola
+MKPEG = ../bin/mkpeg
 BENCH = nfib10
 OPEN = start
 
@@ -75,49 +76,37 @@ test : test.k particles.abc
 	$(MKSWF) -w 500 -h 500 -c Boxes ../stage2/std.abc particles.abc test.abc
 	$(OPEN) test.swf
 
-%.abc   : %.g
-	$(AVM) ../stage2/mkpeg.swf -- $<
-	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k $(subst .g,,$<).k
-
 %.abc : %.k
 	$(TAMACC) -o $@ ../runtime/core.k  $<
 
 %.abc : ../runtime/%.k ../runtime/core.k
 	$(TAMACC) -o $@ ../runtime/core.k $<
 
-
 # simple infix syntax (calculator) test
 
-%.abc : %.g ../stage2/mkpeg.swf
-	$(AVM) ../stage2/mkpeg.swf -- $<
-	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k $(subst .g,,$<).k
-
-../stage2/mkpeg.swf :
-	$(MAKE) -C ../stage2 mkpeg.swf
-
-test-infix : tamacola
-	$(TAMACOLA) ../stage2/mkpeg.k -n infix infix.g
+test-infix : bin
+	$(MKPEG) -n infix infix.g
 	$(TAMACOLA) infix.k infix-test.k
 
-test-macro-shell : tamacola
+test-macro-shell : bin
 	$(TAMACOLA) macro-shell1.k macro-shell2.k
 	rm macro-shell2.abc
 	$(TAMACOLA) macro-shell1.k macro-shell2.k
 
 # S-expression test
 
-test-sexp : tamacola
-	$(TAMACOLA) ../stage2/mkpeg.k -n sexp sexp.g
+test-sexp : bin
+	$(MKPEG) -n sexp sexp.g
 	$(TAMACOLA) sexp.k sexp-test.k
 
 # SmallerTalk test
 
-test-st : tamacola
-	$(TAMACOLA) ../stage2/mkpeg.k -n st st.g
+test-st : bin
+	$(MKPEG) -n st st.g
 	$(TAMACOLA) st.k st-test.k
 
-tamacola :
-	$(MAKE) -C ../stage2 tamacola
+bin :
+	$(MAKE) -C ../bin
 
 clean :
 	rm -f *.abc *.swf infix.k sexp.k st.k

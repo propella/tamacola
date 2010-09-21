@@ -1,8 +1,11 @@
 #!/bin/sh
-# ABC Cola Compiler
-# ./tamacc.sh -x example/hello.k [-- avmshell args]
+# Tamacola shell
+#
+# usage: tamacola [source ..] [-]
+# Source is filename, filename.k, or filename.abc.
+
 AVM=avmshell
 DIR=$(dirname $0)
-TAMACC="$AVM $DIR/tamacola.swf --"
+TAMACOLA="$AVM $DIR/tamacola.swf --"
 
-$TAMACC $@
+$TAMACOLA $@

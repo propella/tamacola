@@ -1,0 +1,10 @@
+#!/bin/sh
+# PEG to LISP converter
+# usage: ./mkpeg [ -n library-name ] [ -o output.k ] input.g
+
+DIR=$(dirname $0)
+
+TAMACOLA="$DIR/tamacola"
+MKPEG="$DIR/mkpeg.k"
+
+$TAMACOLA $MKPEG $@

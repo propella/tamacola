@@ -1,8 +1,9 @@
 -*- outline -*-
 
+todo: write abcsx in tamacola
+todo: write tamacc in tamacola
 todo: rename char->string to string. remove string from peg-grammar.g
 todo: rename runtime -> src (and move there some files in boot)
-todo: publish the source code to github
 todo: write scripts: abcsx with -x option instead of abc-asm-run.sh
 todo: error happens: bin/abcsx -dump example/cat.k
 todo: remove definition???
