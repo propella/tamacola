@@ -43,7 +43,7 @@
                         (send *workspace* setSelection end (+ end (slot-getq out length)))
                         (slot-setq! (slot-getq *workspace* stage) focus *workspace*)))))))
 
-;;;; Event handler
+;;;; Commands
 
 (define %select-source-range
   (lambda (str delimiter pos)
@@ -63,28 +63,62 @@
                 (%end (min (cdr r-range) (cdr n-range))))
               (cons %start %end))))))
 
-(define handleButtons
-  (lambda (e)
+(define get-selection
+  (lambda ()
     (let* ((text (slot-getq *workspace* text))
            (range (select-source-range
                    text
                    (slot-getq *workspace* selectionBeginIndex)
-                   (slot-getq *workspace* selectionEndIndex)))
-           (selection (substring text (car range) (cdr range)))
-           (type (slot-getq e text)))
+                   (slot-getq *workspace* selectionEndIndex))))
       (send *workspace* setSelection (car range) (cdr range))
+      (substring text (car range) (cdr range)))))
+
+(define doit-selection
+  (lambda () (doit (get-selection))))
+
+(define printit-selection
+  (lambda () (printit (get-selection))))
+
+(define slide-reload
+  (lambda ()
+    (load-slides "Home.xml"
+                 (lambda (slides)
+                   (slides-update (slides-goto slides (slides-position *slides*)))))))
+
+(define slide-back
+  (lambda ()
+    (slides-update (slides-goto *slides* (- (slides-position *slides*) 1)))))
+
+(define slide-next
+  (lambda ()
+    (slides-update (slides-goto *slides* (+ (slides-position *slides*) 1)))))
+
+;;;; Event handler
+
+(define handleButtons
+  (lambda (e)
+    (let ((type (slot-getq e text)))
       (cond
-       ((equal? type "back")
-        (slides-update (slides-goto *slides* (- (slides-position *slides*) 1))))
-       ((equal? type "next")
-        (slides-update (slides-goto *slides* (+ (slides-position *slides*) 1))))
-       ((equal? type "doit") (doit selection))
-       ((equal? type "reload") 
-        (load-slides "Home.xml"
-                     (lambda (slides)
-                       (slides-update (slides-goto slides (slides-position *slides*))))))
-       ((equal? type "printit") (printit selection))
+       ((equal? type "back") (slide-back))
+       ((equal? type "next") (slide-next))
+       ((equal? type "doit") (doit-selection))
+       ((equal? type "reload") (slide-reload))
+       ((equal? type "printit") (printit-selection))
        ('else (display 'else))))))
+
+(define handleKey
+  (lambda (e)
+    (let ((keyCode (slot-getq e keyCode))
+          (ctrlKey (slot-getq e ctrlKey)))
+      (if (eq? (slot-getq e target) *workspace*)
+          (cond
+           ((and (eq? keyCode #"D") ctrlKey) (doit-selection))
+           ((and (eq? keyCode #"P") ctrlKey) (printit-selection))
+           ((and (eq? keyCode #"R") ctrlKey) (slide-reload)))
+          (cond
+           ((eq? keyCode 37) (slide-back))
+           ((eq? keyCode 39) (slide-next))
+           )))))
 
 ;;;; Slides object
 
@@ -165,8 +199,8 @@
        (set! *workspace* (new flash.text/TextField))
        (slot-set-all! *workspace* ((x 5)
                                    (y 5)
-                                   (width 630)
-                                   (height 410)
+                                   (width 790)
+                                   (height 565)
                                    (border #t)
                                    (multiline #t)
                                    (wordWrap #t)
@@ -182,8 +216,8 @@
                                   "")))
          
          (slot-set-all! buttons ((x 5)
-                                 (y 450)
-                                 (width 630)
+                                 (y 570)
+                                 (width 790)
                                  (height 25)
                                  (selectable #f)
                                  (defaultTextFormat format)
@@ -193,5 +227,7 @@
          (send #self addChild buttons))
        
        (send #self addChild *workspace*)
+       (send (slot-getq #self stage) addEventListener "keyDown" handleKey)
+
        (init-source)
 )

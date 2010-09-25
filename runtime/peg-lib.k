@@ -91,6 +91,9 @@
 (define-method singleton? typeof-token-group    (lambda (obj) (singleton? (->list obj))))
 (define-method first typeof-token-group         (lambda (obj) (first (->list obj))))
 
+(slot-setq! (slot-getq typeof-token-group prototype) toString
+            (lambda () (+ "<token-string " (+ (String (->list #self)) ">"))))
+
 (define token-group-new
   (lambda ()
     (let ((group (new-token-group)))

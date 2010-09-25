@@ -3,6 +3,7 @@
 todo: why disassembler was written in same time
 todo: S-expression
 todo: test script convention
+$ PATH=$PATH:~/src/c3/bin
 
 </pre>
 
@@ -14,6 +15,7 @@ todo: test script convention
 <li><a href="http://propella.blogspot.com/2010/09/tamacola-2.html">COLA</a></li>
 <li><a href="http://propella.blogspot.com/2010/09/tamacola-3.html">How a lisp program is compiled to Tamarin VM</a></li>
 <li><a href="http://propella.blogspot.com/2010/09/tamacola-4.html">Tamacola in Tamacola, Bootstrapping Macros, Eval</a></li>
+<li><a href="http://propella.blogspot.com/2010/09/tamacola-5-tamacola-is-not-just-another.html">How to make your own compiler</a></li>
 </ul>
 
 <h4>Intro</h4>
@@ -419,3 +421,401 @@ don't want. And now I simply gave up.</p>
 <p>I have explained pretty much all interesting aspect of the self
 hosting compiler. I'll talk about how to make a new language on the
 Tamacola environment later.</p>
+
+
+
+<h3>Tamacola (5)</h3>
+
+Tamacola is not just another LISP language, it is designed as a
+meta-language to make a new language. I'll explain this feature today.
+Today's goal is to design a subset of lisp language. If you think that
+a lisp is too simple to keep your passion, sorry, be patient, simple
+thing first.
+
+<h4>Prepare your Tamacola environment</h4>
+
+To setup Tamacola environment, you need to download both Tamacola
+distribution and Tamarin VM. Those are available on
+<a href="http://www.vpri.org/vp_wiki/index.php/Tamacola">http://www.vpri.org/vp_wiki/index.php/Tamacola</a>. You
+need add the PATH environment variable to find the avmshell command,
+and also it would be useful to set the PATH to bin/ in the tamacola
+tree.
+
+To make sure Tamacola works, plese type:
+
+<pre>
+make example-run
+</pre>
+
+It runs all of the examples in the Tamacola distribution as well as
+recompile the compiler. If you don't find any error, you are ready to
+go. Otherwise, please let me know the problem.
+
+<h4>Tamacola command</h4>
+
+Tamacola command read a tamacola program and run immediately. If you
+want to make a Flash contents, another command tamacc (Tamacola
+Compiler) is more suitable. Now we are playing with an interactive
+shell of tamacola command, so I'll give you a brief explanation.
+
+The interactive shell starts with minus (-) option. Let's try a simple
+arithmetic. If you didn't setup PATH environment, please specify the
+directory name, too.
+
+<pre>
+$ tamacola -
+Cola/Tamarin
+> (+ 3 4)
+7
+</pre>
+
+You can also give Tamacola source files as well as compiled binary
+names. Typically, source code ends with .k, and a binary ends with
+.abc. Tamacola is smart enough to detect newer file between .k and
+.abc.
+
+<h4>Match against a string constant</h4>
+
+<p>Suppose you are on some working directory, and you have already set
+PATH environment to the bin/ directory. And then, we are going to
+write a very simple language, greeting:</p>
+
+<pre>
+;; greeting.g - A simple PEG example
+
+greeting = "morning" -> "Good Morning!"
+         | "evening" -> "Good Evening!"
+</pre>
+
+<p>This stupid example answers "Good Morning!" if you say "morning", and
+it answers "Good Evening!" if you say "evening". This PEG syntax is
+easy to understand. The right hand side of = is a rule name. A rule
+name is translated as a function once it is built.  -> means an action
+rule, where if the left hand is matched the right hand side is
+returned. | is an Ordered options. In this case, the parser tries the
+first case "morning", and tries the second case "evening" only if the
+first case fails.</p>
+
+<p>Save this syntax named "greeting.g". To test this language, type those
+commands:</p>
+
+<pre>
+$ mkpeg greeting.g
+$ tamacola greeting.k -
+compiling:  greeting.k
+Cola/Tamarin
+> (parse-collection greeting "morning")
+"Good Morning!"
+> (parse-collection greeting "evening tokyo")
+"Good Evening!"
+</pre>
+
+<p>Mkpeg command converts grammar file (greeting.g) to tamacola source
+(greeting.k), a rule "greeting" the result can be read by tamacola
+shell. Greeting.k is built on the fly and the command prompt is shown.</p>
+
+<p>Parse-collection's first argument is a parser name (in this case
+"greeting"), and the second is a input collection.  As the name
+implies, it accepts any collection as the input stream.</p>
+
+<p>The second case shows an interesting property of PEG syntax. Although
+the second rule matches the beginning part of the input "evening
+tokyo", still the input remains more string " tokyo". PEG doesn't care
+if the input is competely consumed or not. If you really want to make
+sure that the entire input is matched, you need to explicitly tell the
+Parser the point where end of the file.</p>
+
+<h4>Number parser</h4>
+
+<p>The last example only matched a predefined constant, but we make a
+parser for any integer number here.</p>
+
+<pre>
+;; number.g -- A number parser
+
+digit   = [0123456789]
+number  = digit+
+</pre>
+
+<p>We also convert the grammar specification into the tamacola program,
+but in this case, we give -n option to tell the namespace. A namespace
+is useful when you want to use a common name as a rule name like
+"number". Because "number" is already used in the system, you can not
+use it without namespace.</p>
+
+<p>The grammar itself is easy to understand if you have an experience
+with regular expressoins. Brackets ([]) matches one of characters
+inside, and postfixed plus (+) repeats previous expression with
+one-or-many times.</p>
+
+<pre>
+$ mkpeg -n number number.g 
+$ tamacola number.k -
+compiling:  number.k
+Cola/Tamarin
+> (parse-collection number/number "xyz")
+FAIL
+> (parse-collection number/number "345")
+{token-group:
+(53 52 51)}
+</pre>
+
+<p>Because we use the namespace "number", we need specify the
+namespace before slash(/) in the function name.</p>
+
+<p>As you might notice, this parser correctly rejects a non-number like
+"xyz", and accepts "345". But the result is not so useful. The return
+value of plus is a special object named "token-group", but we would
+want a number represented by the string, instead. So we put a
+conversion function to get the value.</p>
+
+<pre>
+number  = digit+:n      -> (string->number (->string n))
+</pre>
+
+<pre>
+$ tamacola number.k -
+compiling:  number.k
+Cola/Tamarin
+> (parse-collection number/number "345")
+345
+</pre>
+
+<p>Now parser returns a number conveniently. Perhaps you might think that
+it is somewhat cheating. As the string->number function itself is a
+kind of number parser, we should have write a number parser without
+string->number!  Yes we could. But it leads more interesting topic
+about left and right recursion, so I leave it for later.</p>
+
+<h4>S-expression parser</h4>
+
+<p>Now we are going to write a parser for almost real S-expression. This
+parser can only handle number and list, but it is useful enough to
+explain the essence of Tamacola.</p>
+
+<pre>
+;; sexp.g
+;; Lexical Parser
+
+spaces  = [ \t\r\n]*
+
+digit   = [0123456789]
+number  = digit+ :n spaces              -> (string->number (->string n))
+
+char    = [+-*/abcdefghijklmnopqrstuvwxyz]
+symbol  = char+ :s spaces               -> (intern (->string s))
+        
+sexp    = symbol
+        | number
+        | "(" sexp*:e ")"               -> (->list e)
+</pre>
+
+<p>In this grammar, only new operator is the postfix star (*) which
+repeats zero-or-many times. Rest is straightforward. To test this
+grammar, we use Tamacola's simple test framework. Writing test case is
+better than the interactive shell, because you don't have to type same
+expression many times.</p>
+
+<pre>
+;; sexp-test.k
+
+(check (parse-collection sexp/spaces "    ")            => 'SPACES)
+(check (parse-collection sexp/digit "0")                => 48)
+(check (parse-collection sexp/number "345")             => 345)
+(check (parse-collection sexp/char "a")                 => 97)
+(check (parse-collection sexp/symbol "hello")           => 'hello)
+
+(check (parse-collection sexp/sexp "345")               => 345)
+(check (parse-collection sexp/sexp "hello")             => 'hello)
+(check (parse-collection sexp/sexp "(hello world)")     => '(hello world))
+(check (parse-collection sexp/sexp "(3 4)")             => '(3 4))
+(check (parse-collection sexp/sexp "(print 4)")         => '(print 4))
+</pre>
+
+<p>The check function comes from SRFI-78. This function complains only if
+the left hand value and the right hand value differ. Otherwise, does
+nothing. I like this UNIX stile conciseness.</p>
+
+<p>As a convention, a test program is added a postfix "-test" with the
+main program's name. I borrowed this custom from Go language.</p>
+
+<p>Make sure this program do nothing.</p>
+
+<pre>
+$ tamacola sexp.k sexp-test.k 
+</pre>
+
+<h4>Lisp Compiler</h4>
+
+<p>The PEG parser can handle any list structure as well as string. It
+allows you to write compiler in PEG. In a string parser, the input is
+a string and the output is some object (a list in our case), but in a
+compiler, the input is a lisp program and the output is a assembler
+code.</p>
+
+<pre>
+;; Compiler
+
+arity   = .*:x                          -> (length (->list x))
+insts   = inst* :xs                     -> (concatenate (->list xs)) 
+                                        
+inst    = is-number:x                   -> `((pushint ,x))
+        | is-symbol:x                   -> `((getlex ((ns "") ,(symbol->string x))))
+        | '( '+ inst:x inst:y )         -> `(,@x ,@y (add))
+        | '( '- inst:x inst:y )         -> `(,@x ,@y (subtract))
+        | '( '* inst:x inst:y )         -> `(,@x ,@y (multiply))
+        | '( '/ inst:x inst:y )         -> `(,@x ,@y (divide))
+        | '( inst:f &arity:n insts:a )  -> `(,@f (pushnull) ,@a (call ,n))
+</pre>
+
+<p>There are some new elements in the grammar. Quoted list '( ) matches a
+list structure, and a quoted symbol matches a symbol.</p>
+
+<p>A prefix ampersand (&) prevents to consume the stream even if the rule
+matches. For example, &arity rule examine the rest of the list, but
+the contents are matched again by the insts rule later.</p>
+
+<p>Is-number is matched against number, and is-symbol is for a
+symbol. Those rule can not be described as PEG grammar, but as a lisp
+function.</p>
+
+<pre>
+(define is-number
+  (lambda (*stream* *parser*)
+    (if (number? (peek *stream*))
+        (begin (set-parser-result *parser* (next *stream*))
+               #t)
+        #f)))
+
+(define is-symbol
+  (lambda (*stream* *parser*)
+    (if (symbol? (peek *stream*))
+        (begin (set-parser-result *parser* (next *stream*))
+               #t)
+        #f)))
+
+</pre>
+
+<p>A rule is a function which receives the stream and the parser (an
+object which store the result). The rule function returns #t if it
+matches, and #f if it fails.</p>
+
+<p>I think it is easier to see the test code than read my explanation.</p>
+
+<pre>
+
+(check (parse-collection sexp/arity '(a b c))   => 3)
+
+(check (parse-collection sexp/insts '(3 4)      => '((pushint 3)
+                                                     (pushint 4)))
+
+(check (parse-collection sexp/inst '(3))        => '((pushint 3)))
+
+(check (parse-collection sexp/inst '((+ 3 4)))  => '((pushint 3)
+                                                     (pushint 4)
+                                                     (add)))
+
+(check (parse-collection sexp/inst '((f 3 4)))  => '((getlex ((ns "") "f"))
+                                                     (pushnull)
+                                                     (pushint 3)
+                                                     (pushint 4)
+                                                     (call 2)))
+</pre>
+
+<h4>Put it in an envelope</h4>
+
+<p>We still need a little bit to construct a real assembler code. This
+detail topic is out of the context, so I simply show the code.</p>
+
+<pre>
+program = inst:x  -> `(asm
+                       (method (((signature
+                                  ((return_type *) (param_type ()) (name "program")
+                                   (flags 0) (options ()) (param_names ())))
+                                 (code ((getlocal 0)
+                                        (pushscope)
+                                        ,@x
+                                       (returnvalue))))))
+                      (script (((init (method 0)) (trait ())))))
+</pre>
+
+<p>And the test case.<p>
+
+<pre>
+(check (parse-collection sexp/program '((print 42)))
+       => '(asm
+            (method
+             (((signature ((return_type *) (param_type ()) (name "program")
+                           (flags 0) (options ()) (param_names ())))
+               (code ((getlocal 0)
+                      (pushscope)
+                      (getlex ((ns "") "print"))
+                      (pushnull)
+                      (pushint 42)
+                      (call 1)
+                      (returnvalue))))))
+            (script (((init (method 0)) (trait ()))))))
+</pre>
+
+<p>You can read the entire program in example/sexp.g in the Tamacola distribution.</p>
+
+<h4>Left recursion</h4>
+
+<p>We left an interesting topic about left and right recursion. Let me show you our number parser again.</p>
+
+<pre>
+digit   = [0123456789]
+number  = digit+:n               -> (string->number (->string n))
+</pre>
+
+<p>If we don't want to use string->number function, I would write the parser as:</p>
+
+<pre>
+;; Use fold-left
+digit1   = [0123456789]:d        -> (- d 48)
+number1  = digit1:x digit1*:xs   -> (fold-left
+                                      (lambda (n d) (+ (* n 10) d))
+                                      x
+                                      (->list xs))
+</pre>
+
+<p>Digit1 rule converts the ascii value of the the digit character,
+and number1 rule construct a decimal number. As you see, you need to
+use fold-left function to construct a number because a number notation
+is essentially left recursion. For example, a number 34567 actually
+means:</p>
+
+<pre>(((3 * 10 + 4) * 10 + 5) * 10 + 6) * 10 + 7</pre>
+
+<p>However, PEG parser doesn't parse left recursion grammar in
+general. So I had to reconstruct the left recursion structure by
+fold-left. This is not hard at all if you familiar with functional
+programming. In functional programming, a list is considered as a
+right recursive data structure and it is even natural that a list is
+parsed by a right recursive way. However, I admit that it looks
+awkward for some people.</p>
+
+<p>Yoshiki Ohshima provides a very useful extension to support a direct
+left recursion. To use his extension, the number parser is written as:<p>
+
+<pre>
+;; Use left-recursion
+
+digit2   = [0123456789]:d        -> (- d 48)
+number2  = number2:n digit2:d    -> (+ (* n 10) d)
+         | digit2
+number2s = number2
+</pre>
+
+<p>You need to load runtime/peg-memo-macro.k to use this extension.</p>
+
+<pre>
+$ tamacola ../runtime/peg-memo-macro.k number.k -
+Cola/Tamarin
+> (parse-collection number/number2s "345")
+345
+</pre>
+
+<p>The real parser and compiler are bigger than presented grammars here,
+but I explained all of the essential ideas. I hope it helps you to
+make your own language!</p>

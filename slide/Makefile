@@ -19,7 +19,7 @@ run : Slide.swf stack.png
 	$(OPEN) $<
 
 Slide.swf : stage2 ../ws/platform-flash.abc Slide.abc
-	$(MKSWF) -w 640 -h 480 -o $@ -c Slide $(STAGE2) ../ws/platform-flash.abc Slide.abc
+	$(MKSWF) -w 800 -h 600 -o $@ -c Slide $(STAGE2) ../ws/platform-flash.abc Slide.abc
 
 stage2 : .FORCE
 	$(MAKE) -C ../stage2 tamacola swf.abc

@@ -50,7 +50,7 @@ run :
 test-redefine : re-define1.abc re-define2.abc re-define3.abc
 	$(AVM) $^
 
-rest : test-infix test-sexp test-st hello-swf interactive calcFlash benchmark
+rest : test-peg hello-swf interactive calcFlash benchmark
 
 benchmark :
 	time $(TAMACC) $(BENCH).k
@@ -82,24 +82,30 @@ test : test.k particles.abc
 %.abc : ../runtime/%.k ../runtime/core.k
 	$(TAMACC) -o $@ ../runtime/core.k $<
 
-# simple infix syntax (calculator) test
-
-test-infix : bin
-	$(MKPEG) -n infix infix.g
-	$(TAMACOLA) infix.k infix-test.k
-
 test-macro-shell : bin
 	$(TAMACOLA) macro-shell1.k macro-shell2.k
 	rm macro-shell2.abc
 	$(TAMACOLA) macro-shell1.k macro-shell2.k
 
-# S-expression test
+#### PEG parser tests
+
+test-peg : test-greeting test-number test-infix test-sexp test-st
+
+test-greeting : bin
+	$(MKPEG) greeting.g
+	$(TAMACOLA) greeting.k greeting-test.k
+
+test-number :
+	$(MKPEG) -n number number.g
+	$(TAMACOLA) ../runtime/peg-memo-macro.k number.k number-test.k
+
+test-infix : bin
+	$(MKPEG) -n infix infix.g
+	$(TAMACOLA) infix.k infix-test.k
 
 test-sexp : bin
 	$(MKPEG) -n sexp sexp.g
 	$(TAMACOLA) sexp.k sexp-test.k
-
-# SmallerTalk test
 
 test-st : bin
 	$(MKPEG) -n st st.g
@@ -108,5 +114,7 @@ test-st : bin
 bin :
 	$(MAKE) -C ../bin
 
+#### Cleanup
+
 clean :
-	rm -f *.abc *.swf infix.k sexp.k st.k
+	rm -f *.abc *.swf infix.k sexp.k st.k greeting.k number.k

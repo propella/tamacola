@@ -1,31 +1,31 @@
-;;;; -*- fundamental -*-
+;;;; A mini lisp compiler
 
 ;; Lexical Parser
 
-char = [+-*/abcdefghijklmnopqrstuvwxyz]
-sp   = [ \t\r\n]*
-dig  = [0123456789]
+spaces  = [ \t\r\n]*                    -> 'SPACES
+                                        
+digit   = [0123456789]
+number  = digit+ :n spaces              -> (string->number (->string n))
 
-sym  = char+ :s sp     -> (intern (->string s))
-num  = dig+ :n sp      -> (string->number (->string n))
-sexp = sym
-     | num
-     | "(" sexp*:e ")" -> (->list e)
-
+char    = [+-*/abcdefghijklmnopqrstuvwxyz]
+symbol  = char+ :s spaces               -> (intern (->string s))
+        
+sexp    = symbol
+        | number
+        | "(" sexp*:e ")"               -> (->list e)
+                                        
 ;; Compiler
 
-inst  = . ; forward
-
-arity  = .*:x -> (length (->list x))
-insts   = inst* :xs -> (concatenate (->list xs)) 
-
-inst   = is-number:x                  -> `((pushint ,x))
-       | is-symbol:x                  -> `((getlex ((ns "") ,(symbol->string x))))
-       | '( '+ inst:x inst:y )        -> `(,@x ,@y (add))
-       | '( '- inst:x inst:y )        -> `(,@x ,@y (subtract))
-       | '( '* inst:x inst:y )        -> `(,@x ,@y (multiply))
-       | '( '/ inst:x inst:y )        -> `(,@x ,@y (divide))
-       | '( inst:f &arity:n insts:a ) -> `(,@f (pushnull) ,@a (call ,n))
+arity   = .*:x                          -> (length (->list x))
+insts   = inst* :xs                     -> (concatenate (->list xs)) 
+                                        
+inst    = is-number:x                   -> `((pushint ,x))
+        | is-symbol:x                   -> `((getlex ((ns "") ,(symbol->string x))))
+        | '( '+ inst:x inst:y )         -> `(,@x ,@y (add))
+        | '( '- inst:x inst:y )         -> `(,@x ,@y (subtract))
+        | '( '* inst:x inst:y )         -> `(,@x ,@y (multiply))
+        | '( '/ inst:x inst:y )         -> `(,@x ,@y (divide))
+        | '( inst:f &arity:n insts:a )  -> `(,@f (pushnull) ,@a (call ,n))
 
 program = inst:x  -> `(asm
                        (method (((signature

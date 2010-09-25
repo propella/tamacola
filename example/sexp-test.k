@@ -14,21 +14,36 @@
                #t)
         #f)))
 
-(import sexp)
+(check (parse-collection sexp/spaces "    ")            => 'SPACES)
+(check (parse-collection sexp/digit "0")                => 48)
+(check (parse-collection sexp/number "345")             => 345)
+(check (parse-collection sexp/char "a")                 => 97)
+(check (parse-collection sexp/symbol "hello")           => 'hello)
 
-(check (parse-collection char "+") => #"+")
-(check (parse-collection sym "+") => '+)
-(check (parse-collection num "1234") => 1234)
-(check (parse-collection sexp "hello") => 'hello)
-(check (parse-collection sexp "1234") => 1234)
-(check (parse-collection sexp "(hello world)") => '(hello world))
-(check (parse-collection sexp "(3 4)") => '(3 4))
-(check (parse-collection sexp "(+ 3 4)") => '(+ 3 4))
+(check (parse-collection sexp/sexp "345")               => 345)
+(check (parse-collection sexp/sexp "hello")             => 'hello)
+(check (parse-collection sexp/sexp "(hello world)")     => '(hello world))
+(check (parse-collection sexp/sexp "(3 4)")             => '(3 4))
+(check (parse-collection sexp/sexp "(print 4)")         => '(print 4))
 
-(check (parse-collection inst '((+ 3 4))) => '((pushint 3) (pushint 4) (add)))
-(check (parse-collection inst '((f 3 4))) => '((getlex ((ns "") "f")) (pushnull) (pushint 3) (pushint 4) (call 2)))
+(check (parse-collection sexp/arity '(a b c))   => 3)
 
-(check (parse-collection inst '((print (+ 3 4))))
+(check (parse-collection sexp/insts '(3 4))     => '((pushint 3)
+                                                     (pushint 4)))
+
+(check (parse-collection sexp/inst '(3))        => '((pushint 3)))
+
+(check (parse-collection sexp/inst '((+ 3 4)))  => '((pushint 3)
+                                                     (pushint 4)
+                                                     (add)))
+
+(check (parse-collection sexp/inst '((f 3 4)))  => '((getlex ((ns "") "f"))
+                                                     (pushnull)
+                                                     (pushint 3)
+                                                     (pushint 4)
+                                                     (call 2)))
+
+(check (parse-collection sexp/inst '((print (+ 3 4))))
        => '((getlex ((ns "") "print"))
             (pushnull)
             (pushint 3)
@@ -36,7 +51,7 @@
             (add)
             (call 1)))
 
-(check (parse-collection program '((print 42)))
+(check (parse-collection sexp/program '((print 42)))
        => '(asm
             (method
              (((signature ((return_type *) (param_type ()) (name "program")
@@ -50,7 +65,7 @@
                       (returnvalue))))))
             (script (((init (method 0)) (trait ()))))))
                          
-(let* ((asm (parse-collection execute "(print (+ 3 4))"))
+(let* ((asm (parse-collection sexp/execute "(print (+ 3 4))"))
        (bytes (call-with-output-bytes
                (lambda (port) (write-asm asm port)))))
   (load-byte-codes bytes '()))
