@@ -25,7 +25,7 @@ stage2 : .FORCE
 	$(MAKE) -C ../stage2 tamacola swf.abc
 
 stack.png : ../paper/stack.eps
-	convert -density 120 $< $@
+	convert -density 600 $< $@
 
 %.abc : %.k
 	$(TAMACC) -o $@ ../runtime/core.k $<

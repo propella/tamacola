@@ -1,23 +1,128 @@
 <xml>
   <page>
     <p align='center'>
-    <font face='Times' size='60'><b>Tamacola</b></font>
-    <font face='Times' size='36'>A Meta Language Kit for the Web</font>
-    <br />
-    <font size='24'>Takashi Yamamiya and Yoshiki Ohshima</font>
+      <br/><br/><br/><br/><br/><br/>
+      <font face='Times' size='96'><b>Tamacola</b></font>
+      <br/><br/><br/><br/><br/><br/>
+      <br/><br/><br/><br/><br/><br/>
+      <font face='Times' size='36'>A Meta Language Kit for the Web</font>
+      <br/><br/><br/><br/><br/><br/>
+      <font size='32'>Takashi Yamamiya and Yoshiki Ohshima</font>
     </p>
   </page>
+
   <page>
-<p align='center'><font face='Times' size='36'><b>Tamacola slide tool</b></font></p>
+    <p align='center'><font face='Times' size='64'><u>Outline</u></font></p>
+    <font face="Times" size="24">
+
+      <p>Introduction</p>
+      <ul>
+        <li>Tamacola = Tamarin VM + COLA</li>
+        <!-- li>Goals</li -->
+      </ul>
+
+      <p>PEG in Tamacola</p>
+      <ul>
+        <li>PEG elements: Greetings, Number</li>
+        <li>Mini Lisp: Parser, Compiler</li>
+        <!-- li>Recursion (Right? Left?)</li -->
+      </ul>
+
+      <p>Self-Hosting</p>
+      <ul>
+        <li>Assembler, COLA, Boot-strapping, Frame layout</li>
+        <li>Runtime, Macros, Eval</li>
+      </ul>
+
+      <p>Applications</p>
+      <ul>
+        <li>Workspace</li>
+        <li>Extensions: Optimization, Left recursion (Yoshiki)</li>
+        <li>Other languages: Particles, Ruby (Yoshiki)</li>
+      </ul>
+
+
+    </font>
+  </page>
+  
+  <page>
+<p align='center'><font face='Times' size='48'><u>Goals</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Why Flash?</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Tool Usage</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Greeting</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Number</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Parser</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Compiler</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Recursion</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Assembler</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>COLA</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Boot-strapping</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Runtime Stack</u></font></p>
+    <img src='stack.png'/>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Macros</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Eval</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>COLA Workspace</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Applications</u></font></p>
+  </page>
+
+  <page>
+<p align='center'><font face='Times' size='48'><u>Conclusion</u></font></p>
+  </page>
+
+
+  <page><p align='center'><font face='Times' size='36'><u>Tamacola slide tool</u></font></p>
 
 <font face='Courier New' size='18'>(+ 3 4)
 (print "Hello, World!\n")
 </font>
   </page>
-  <page>
-    <p>Third page</p>
-    <img src='stack.png'/>
-  </page>
+
+
   <page>
     <p>Fourth page</p>
   </page>

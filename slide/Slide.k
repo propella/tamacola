@@ -109,16 +109,15 @@
 (define handleKey
   (lambda (e)
     (let ((keyCode (slot-getq e keyCode))
-          (ctrlKey (slot-getq e ctrlKey)))
-      (if (eq? (slot-getq e target) *workspace*)
-          (cond
-           ((and (eq? keyCode #"D") ctrlKey) (doit-selection))
-           ((and (eq? keyCode #"P") ctrlKey) (printit-selection))
-           ((and (eq? keyCode #"R") ctrlKey) (slide-reload)))
-          (cond
-           ((eq? keyCode 37) (slide-back))
-           ((eq? keyCode 39) (slide-next))
-           )))))
+          (ctrlKey (slot-getq e ctrlKey))
+          (w (eq? (slot-getq e target) *workspace*)))
+    (cond 
+     ((and (eq? keyCode #"R") ctrlKey) (slide-reload))
+     ((and (eq? keyCode #"D") ctrlKey w) (doit-selection))
+     ((and (eq? keyCode #"P") ctrlKey w) (printit-selection))
+     ((and (eq? keyCode 37) (not w)) (slide-back))
+     ((and (eq? keyCode 39) (not w)) (slide-next))
+     ))))
 
 ;;;; Slides object
 
@@ -140,9 +139,11 @@
 
 (define slides-content
   (lambda (slides)
-    (let ((page (slot-get (slides-pages slides)
-                          (slides-position slides))))
-      (send page children))))
+    (let* ((page (slot-get (slides-pages slides)
+                           (slides-position slides)))
+           (contents (send page children)))
+      (trace 'contents= (String contents))
+      contents)))
 
 ;; Return a new slides to point a new location
 
@@ -201,7 +202,7 @@
                                    (y 5)
                                    (width 790)
                                    (height 565)
-                                   (border #t)
+;                                   (border #t)
                                    (multiline #t)
                                    (wordWrap #t)
                                    (alwaysShowSelection #t)
@@ -228,6 +229,6 @@
        
        (send #self addChild *workspace*)
        (send (slot-getq #self stage) addEventListener "keyDown" handleKey)
-
+       (slot-setq! XML prettyPrinting #f)
        (init-source)
 )
