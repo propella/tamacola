@@ -1,10 +1,10 @@
 ;; -*- fundamental -*-
 
-__               = [ \t\n\r]*
-lalpha          = [_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
-ldigit10          = [0123456789]
+_              = [ \t\n\r]*
+alpha          = [_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
+digit10        = [0123456789]
 
-lescaped        = "\\"     ( "e"        -> 27
+escaped        = "\\"     ( "e"        -> 27
                            | "a"        ->  7
                            | "b"        ->  8
                            | "f"        -> 12
@@ -17,121 +17,121 @@ lescaped        = "\\"     ( "e"        -> 27
                            | "\\"       -> 92
                            )
 
-lcharacter      = lescaped | .
-lstring         = "\"" __ (!"\"" lcharacter)*:s "\"" __                 -> `(string ,(->string s))
-lnsName         = (lalpha (ldigit10 | lalpha)*) @:x                     -> (->string x)
-ldouble          = (("+" | "-")? ldigit10+ "." ldigit10+)@:n __         -> (string->double (->string n))
-linteger         = ldigit10+ $#10:v __                                  -> v
-lscalar         = (ldouble | linteger):x                                -> `(scalar ,x)
-lidentifier     = lnsName:x __                                          -> `(ident ,(intern (->string x)))
+character      = escaped | .
+string         = "\"" _ (!"\"" character)*:s "\"" _                 -> `(string ,(->string s))
+nsName         = (alpha (digit10 | alpha)*) @:x                     -> (->string x)
+double         = (("+" | "-")? digit10+ "." digit10+)@:n _          -> (string->double (->string n))
+integer        = digit10+ $#10:v _                                  -> v
+scalar         = (double | integer):x                               -> `(scalar ,x)
+identifier     = nsName:x _                                         -> `(ident ,(intern (->string x)))
 
-lidentifier     = (lnsName:x __ -> (intern x):x) !<forall-reservedq x>  -> `(ident ,x)
-
-
-lALL            = "%all"    __                                          -> 'all
-lSOME           = "%some"   __                                          -> 'some
-lSUCH           = "%such"   __                                          -> 'such
-lDOINORDER      = "do" __ "in" __ "order" __                            -> 'inorder
-lDO             = "do"      __                                          -> 'do
-lBY             = "by"      __
-lIN             = "in"      __
-lDOTDOTDOT      = "..."     __
-lDOTDOT         = ".."      __
-lIF             = "if"      __
-lTHEN           = "then"    __
-lELSE           = "else"    __
-lNEW            = "new"     __
-lFUNCTION       = "function" __
-lRETURN         = "return"  __
-lCOMMA          = "," __
+identifier     = (nsName:x _ -> (intern x):x) !<forall-reservedq x> -> `(ident ,x)
 
 
-larg            = lexpr
+ALL            = "%all"     _                                       -> 'all
+SOME           = "%some"    _                                       -> 'some
+SUCH           = "%such"    _                                       -> 'such
+DOINORDER      = "do" _ "in" _ "order" _                            -> 'inorder
+DO             = "do"       _                                       -> 'do
+BY             = "by"       _
+IN             = "in"       _
+DOTDOTDOT      = "..."      _
+DOTDOT         = ".."       _
+IF             = "if"       _
+THEN           = "then"     _
+ELSE           = "else"     _
+NEW            = "new"      _
+FUNCTION       = "function" _
+RETURN         = "return"   _
+COMMA          = "," _
 
-largs           = larg:a (lCOMMA largs:b)?                              -> `(,a ,@b)
-                | __                                                    -> '()
 
-lidentifiers    = lidentifier:a (lCOMMA lidentifiers:b)?                -> `(,a ,@b)
-                | __                                                    -> '()
+arg            = expr
 
-larrayVar       = lidentifier:i ":" __ larrayPart:a                     -> `(,i ,a)
-larrayVars      = larrayVar:a (lCOMMA larrayVars:b)?                    -> `(,a ,@b)
-                | __                                                    -> '(() ())
+args           = arg:a (COMMA args:b)?                              -> `(,a ,@b)
+               | _                                                  -> '()
 
-larrayElement   = lexpr
+identifiers    = identifier:a (COMMA identifiers:b)?                -> `(,a ,@b)
+               | _                                                  -> '()
 
-ldots           = lDOTDOTDOT -> 'range-i | lDOTDOT -> 'range
+arrayVar       = identifier:i ":" _ arrayPart:a                     -> `(,i ,a)
+arrayVars      = arrayVar:a (COMMA arrayVars:b)?                    -> `(,a ,@b)
+               | _                                                  -> '(() ())
 
-larrayPart      = larrayElement:x ldots:key larrayElement:y lBY lscalar:s -> `(,key ,x ,y ,s)
-                | larrayElement:x ldots:key larrayElement:y               -> `(,key ,x ,y (scalar 1))
-                | larrayElement
+arrayElement   = expr
 
-larrayParts     = larrayPart:a (lCOMMA larrayParts:b)?                  -> `(,a ,@b)
-                | __                                                    -> '()
+dots           = DOTDOTDOT -> 'range-i | DOTDOT -> 'range
 
-larrayDecl      = lidentifier:n "[" __ lidentifiers:i "]" __ -> `(array-decl ,n ,@i)
+arrayPart      = arrayElement:x dots:key arrayElement:y BY scalar:s -> `(,key ,x ,y ,s)
+               | arrayElement:x dots:key arrayElement:y             -> `(,key ,x ,y (scalar 1))
+               | arrayElement
 
-larrayDecls     = larrayDecl:a (lCOMMA larrayDecls:b)?                  -> `(,a ,@b)
-                | __                                                    -> '()
+arrayParts     = arrayPart:a (COMMA arrayParts:b)?                  -> `(,a ,@b)
+               | _                                                  -> '()
 
-lquery          = lSUCH "{" __ lexpr:e "|" __ larrayDecl:n "<" __ lexpr:s "}" __                -> `(such ,s ,e ,n)
-                | lALL  "{" __                larrayDecls:n "<" __ lexpr:s "}" __               -> `(all ,s ,(->list n))
-                | lSOME "{" __ lexpr:e "|" __ lidentifier+:n "<" __ lexpr:s "}" __              -> `(some ,s ,e ,(->list n))
+arrayDecl      = identifier:n "[" _ identifiers:i "]" _             -> `(array-decl ,n ,@i)
 
-lprimExpr       = lscalar
-                | lstring
-                | "(" __ lexpr:e ")" __                                   -> e
-                | lFUNCTION (__ -> (trace "fff")) "(" __ lidentifiers:l ")" (__ -> (trace "ggg")) __ lcompound:c (__ -> (trace "hhh"))     -> `(lambda ,(->list l) ,c)
-                | lNEW "[" __ largs:l "]" __ -> `(new ,l)
-                | "[" __ largs:a "]" __                                   -> `(array ,@a) 
-                | lidentifier
+arrayDecls     = arrayDecl:a (COMMA arrayDecls:b)?                  -> `(,a ,@b)
+               | _                                                  -> '()
 
-lexpr0          = lexpr0:r "." __ lidentifier:m "(" __ ")" __           -> `(send ,r ,m)
-                | lexpr0:r "." __ lidentifier:m "(" __ largs:a ")" __   -> `(send ,r ,m ,@a)
-                | lexpr0:r "." __ lidentifier:m __                      -> `(prop ,r ,m)
-                | lexpr0:r "(" __ largs:a ")" __                        -> `(send null ,r ,@a)
-                | lexpr0:r "[" __ larrayVars:ia "]" __                  -> `(index-v ,r ,@ia)
-                | lexpr0:r "[" __ largs:a "]" __                        -> `(index-e ,r ,a)
-                | lexpr0:r "[" __ larrayPart:a "]" __                   -> `(index ,r ,a)
-                | "+" __ lexpr0
-                | "-" __ lexpr0:x                                       -> `(neg ,x)
-                | lprimExpr
+query          = SUCH "{" _ expr:e "|" _ arrayDecl:n   "<" _ expr:s "}" _  -> `(such ,s ,e ,n)
+               | ALL  "{" _              arrayDecls:n  "<" _ expr:s "}" _  -> `(all ,s ,(->list n))
+               | SOME "{" _ expr:e "|" _ identifier+:n "<" _ expr:s "}" _  -> `(some ,s ,e ,(->list n))
 
-lexpr1          = lexpr1:x ("%%" -> 'modulo | "//" -> '/):op __ lexpr0:u                -> `(int (,op ,x ,u))
-                | lexpr1:x ("*" -> '* | "/" -> '/ | "%" -> 'modulo):op __ lexpr0:u      -> `(,op ,x ,u)
-                | lexpr0
+primExpr       = scalar
+               | string
+               | "(" _ expr:e ")" _                                 -> e
+               | FUNCTION "(" _ identifiers:l ")" _ compound:c      -> `(lambda ,(->list l) ,c)
+               | NEW "[" _ args:l "]" _ -> `(new ,l)
+               | "[" _ args:a "]" _                                 -> `(array ,@a) 
+               | identifier
 
-lexpr2          = lexpr2:x ("+" -> '+ | "-" -> '-):op __ lexpr1:u                       -> `(,op ,x ,u)
-                | lexpr1
+expr0          = expr0:r "." _ identifier:m "(" _ ")" _             -> `(send ,r ,m)
+               | expr0:r "." _ identifier:m "(" _ args:a ")" _      -> `(send ,r ,m ,@a)
+               | expr0:r "." _ identifier:m _                       -> `(prop ,r ,m)
+               | expr0:r "(" _ args:a ")" _                         -> `(send null ,r ,@a)
+               | expr0:r "[" _ arrayVars:ia "]" _                   -> `(index-v ,r ,@ia)
+               | expr0:r "[" _ args:a "]" _                         -> `(index-e ,r ,a)
+               | expr0:r "[" _ arrayPart:a "]" _                    -> `(index ,r ,a)
+               | "+" _ expr0
+               | "-" _ expr0:x                                      -> `(neg ,x)
+               | primExpr
 
-lexpr3          = lexpr3:x (">=" -> '>= | ">" -> '> | "<=" -> '<= | "<" -> '<):op __ lexpr2:u -> `(,op ,x ,u)
-                | lexpr2
+expr1          = expr1:x ("%%" -> 'modulo | "//" -> '/):op _ expr0:u                -> `(int (,op ,x ,u))
+               | expr1:x ("*" -> '* | "/" -> '/ | "%" -> 'modulo):op _ expr0:u      -> `(,op ,x ,u)
+               | expr0
 
-lexpr4          = lexpr4:x ("!=" | "~=") __ lexpr3:u                         -> `(not (= ,x ,u))
-                | lexpr4:x "=="          __ lexpr3:u                         -> `(= ,x ,u)
-                | lexpr3
+expr2          = expr2:x ("+" -> '+ | "-" -> '-):op _ expr1:u                       -> `(,op ,x ,u)
+               | expr1
 
-lexpr5          = lexpr4:x ("&&" __ lexpr4:u -> `(and ,x ,u):x)* -> x
+expr3          = expr3:x (">=" -> '>= | ">" -> '> | "<=" -> '<= | "<" -> '<):op _ expr2:u -> `(,op ,x ,u)
+               | expr2
 
-lexpr6          = lexpr5:x ("||" __ lexpr5:u -> `(or ,x ,u):x)* -> x
+expr4          = expr4:x ("!=" | "~=") _ expr3:u                         -> `(not (= ,x ,u))
+               | expr4:x "=="          _ expr3:u                         -> `(= ,x ,u)
+               | expr3
 
-lexpr7          = lexpr7:x "?" __ lexpr7:y ":" __ lexpr7:z -> `(if ,x ,y ,z)
-                | lexpr6
+expr5          = expr4:x ("&&" _ expr4:u                            -> `(and ,x ,u):x)* -> x
 
-lexpr           = lexpr7
+expr6          = expr5:x ("||" _ expr5:u                            -> `(or ,x ,u):x)* -> x
 
-lsemi           = ";" __ 
+expr7          = expr7:x "?" _ expr7:y ":" _ expr7:z                -> `(if ,x ,y ,z)
+               | expr6
 
-lstmts          = (lstmt:r -> `(,r):r) (lsemi lstmt:a -> `(,@r ,a):r)* lsemi?           -> r
-		| __ lsemi?    	       	      	      	       	        -> '()
+expr           = expr7
 
-lcompound       = "{" __ lstmts:ss "}" __                               -> `(compoundStmt ,@ss)
+semi           = ";" _ 
 
-lstmt           = lIF lexpr:c lTHEN lstmt:t (lELSE lstmt:e)?            -> `(if ,c ,t ,e)
-                | lexpr:x "=" !("=") __ lexpr:v                         -> `(assign ,x ,v)
-                | lRETURN lexpr:e    					-> `(return ,e)
-                | lcompound
-                | lquery:q (lDO | lDOINORDER):e lcompound:ss            -> `(query ,e ,q ,ss)
-                | lexpr
+stmts          = (stmt:r -> `(,r):r) (semi stmt:a -> `(,@r ,a):r)* semi? -> r
+               | _ semi?                                                 -> '()
 
-lstart          = __ lstmts:s __						-> s
+compound       = "{" _ stmts:ss "}" _                                    -> `(compoundStmt ,@ss)
+
+stmt           = IF expr:c THEN stmt:t (ELSE stmt:e)?                    -> `(if ,c ,t ,e)
+               | expr:x "=" !("=") _ expr:v                              -> `(assign ,x ,v)
+               | RETURN expr:e                                           -> `(return ,e)
+               | compound
+               | query:q (DO | DOINORDER):e compound:ss                  -> `(query ,e ,q ,ss)
+               | expr
+
+start          = _ stmts:s _                                             -> s

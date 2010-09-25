@@ -20,10 +20,10 @@ step = function () {
 };
 ")
 
-(let ((tree (parse-collection lstart str)))
+(let ((tree (parse-collection forall/start str)))
   (pretty-print tree)
-  (pretty-print (parse-stream tstarts (->stream (cons tree '()))))
-  (map eval (parse-stream tstarts (->stream (cons tree '()))))
+  (pretty-print (parse-stream forall-trans/starts (->stream (cons tree '()))))
+  (map eval (parse-stream forall-trans/starts (->stream (cons tree '()))))
 )
 
 (trace (FArrayToString arr))

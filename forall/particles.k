@@ -47,18 +47,18 @@
 	     (set! i (+ i 1))
 	     (set! current (iterator))))))
 
-(define assign
-  (lambda (array mask expression)
-    (let* ((iterator (index-iterator array mask))
-	   (i 0)
- 	   (current (iterator))
-	   (len (array-length array)))
-      (while (and (not (null? current) (< i len)))
-	     (if (>= current 0)
-		 (slot-set! array current (expression i))
-		 '())
-	     (set! i (+ i 1))
-	     (set! current (iterator))))))
+; (define assign
+;   (lambda (array mask expression)
+;     (let* ((iterator (index-iterator array mask))
+; 	   (i 0)
+;  	   (current (iterator))
+; 	   (len (array-length array)))
+;       (while (and (not (null? current) (< i len)))
+; 	     (if (>= current 0)
+; 		 (slot-set! array current (expression i))
+; 		 '())
+; 	     (set! i (+ i 1))
+; 	     (set! current (iterator))))))
 
 ;;========================================================
 

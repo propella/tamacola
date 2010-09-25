@@ -36,8 +36,12 @@ forall-life.swf : particles.abc forall-life.abc
 	$(OPEN) $@
 
 forall.abc  : forall.g ../runtime/peg-memo-macro.k
-	$(AVM) ../stage2/mkpeg.swf -- $<
+	$(AVM) ../stage2/mkpeg.swf -- -n forall $<
 	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k ../runtime/peg-memo-macro.k $(subst .g,,$<).k
+
+forall-trans.abc  : forall-trans.g
+	$(AVM) ../stage2/mkpeg.swf -- -n forall-trans $<
+	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k $(subst .g,,$<).k
 
 infix.abc  : infix.g ../runtime/peg-memo-macro.k
 	$(AVM) ../stage2/mkpeg.swf -- $<
