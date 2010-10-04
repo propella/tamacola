@@ -46,6 +46,23 @@
     (set! *translator* (make-translator peg/definitions))
     (evalstring str '*dummy* play-result)))
 
+(define st
+  (lambda (str)
+    (set! *translator* (make-translator _stmts))
+    (evalstring str
+                '*dummy*
+                (lambda (e)
+                  (if (eq? e #undefined)
+                      ()
+                      (let* ((result (call-with-output-string
+                                      (lambda (out) (pretty-print-on e out))))
+                             (out (+ "\n=> " result))
+                             (end (slot-getq *workspace* selectionEndIndex)))
+                        (send *workspace* replaceText end end out)
+                        (send *workspace* setSelection end (+ end (slot-getq out length)))
+                        (slot-setq! (slot-getq *workspace* stage) focus *workspace*)))
+                  (play-result e)))))
+
 (define printit
   (lambda (str)
     (evalstring-default str
@@ -99,6 +116,9 @@
 (define peg-selection
   (lambda () (peg (get-selection))))
 
+(define st-selection
+  (lambda () (st (get-selection))))
+
 (define printit-selection
   (lambda () (printit (get-selection))))
 
@@ -128,6 +148,7 @@
        ((equal? type "reload") (slide-reload))
        ((equal? type "printit") (printit-selection))
        ((equal? type "peg") (peg-selection))
+       ((equal? type "st") (st-selection))
        ('else (display 'else))))))
 
 (define handleKey
@@ -243,6 +264,7 @@
                                     "<a href='event:doit'>[Do It]</a> "
                                     "<a href='event:printit'>[Print It]</a> "
                                     "<a href='event:peg'>[PEG]</a> "
+                                    "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a href='event:st'>[ST]</a> "
                                     ) "")))
          
          (slot-set-all! buttons ((x 5)

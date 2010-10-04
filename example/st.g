@@ -2,40 +2,38 @@
 ;; SmallerTalk grammar
 ;; http://wiki.squeak.org:8080/squeak/uploads/172/standard_v1_9-indexed.pdf
 
-digit          = [01234567890]
-binop          = [!%&*+,/<=>?@\~|-]
-whitespace     = [ \t\r\n]
-number         = digit+ :n _                    -> (string->number (->string n))
+dig            = [01234567890]
+num            = dig+ :n __                    -> (string->number (->string n))
 
-comment        = "\"" (!"\"" .)* "\""               -> 'COMMENT
-_              = (whitespace | comment)*
+space          = [ \t\r\n]
+cmt            = "\"" (!"\"" .)* "\""               -> 'COMMENT
+__             = (space | cmt)*
 					
 letter         = [ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_]
-identifier     = letter:x (letter | digit)* :xs           	-> (list->string `(,x ,@xs))
+ident     = letter:x (letter | dig)* :xs -> (list->string `(,x ,@xs))
 
-character      = .
-string-body    = (!"'" character | "''" )*:xs -> (list->string (->list xs))
-quoted-string  = "'" string-body:x "'" _ -> x
+string-body    = (!"'" . | "''" )*:xs -> (list->string (->list xs))
+quoted-string  = "'" string-body:x "'" __ -> x
 
-symbol         = "#" identifier:x _ -> `(quote ,(string->symbol x))
-reference      = identifier:x _ -> (string->symbol x)
-reserved       = "true" -> '#t
-               | "false" -> '#f
-               | "self" -> '#self
+sym            = "#" ident:x __ -> `(quote ,(string->symbol x))
+reserved       = "true" __ -> '#t
+               | "false" __ -> '#f
+               | "self" __ -> '#self
+variable       = ident:x __ -> (string->symbol x)
 
-unit           = number
+unit           = num
                | reserved
-               | reference
-               | symbol
+               | variable
+               | sym
                | quoted-string
                | block
-               | "(" _ expr :x ")" _         -> x
+               | "(" __ stmt :x ")" __         -> x
 
 unary          = unit:x unary-rest*:ms          -> (fold-left
                                                      (lambda (r m) `(send ,r ,(string->symbol m)))
                                                      x
                                                      (->list ms))
-unary-rest     = identifier:m !":" _            -> m
+unary-rest     = ident:m !":" __            -> m
 
 binary         = unary:x ( binary-rest+ :ms	-> (fold-left
                                                       (lambda (r m) `(,(car m) ,r ,(cadr m)))
@@ -43,7 +41,8 @@ binary         = unary:x ( binary-rest+ :ms	-> (fold-left
                                                       (->list ms))
                          | 			-> x ) 
 
-binary-rest    = binop:op _ unary:x           	-> `(,(string->symbol (char->string op)) ,x)
+binop          = [!%&*+,/<=>?@\~|-]
+binary-rest    = binop:op __ unary:x           	-> `(,(string->symbol (char->string op)) ,x)
 
 keyword        = binary:x ( keyword-rest:m        -> `(send ,x ,(string->symbol (car m)) ,@(cdr m))
                         | 			-> x )
@@ -57,21 +56,21 @@ keyword-rest   = keyword-part+:xs               -> (fold-right
                                                      (cons "" ())
                                                      (->list xs))
 
-keyword-part   = identifier:m ":" _ binary:x      -> (cons m x)
+keyword-part   = ident:m ":" __ binary:x      -> (cons m x)
 
-assign         = identifier:v _ ":=" _ keyword:x  -> `(set! ,(string->symbol v) ,x)
+assign         = ident:v __ ":=" __ stmt:x  -> `(set! ,(string->symbol v) ,x)
 
-args           = (":" _ identifier:x _ -> (string->symbol x))+:xs "|" _ -> (->list xs)
+args           = (":" variable)+:xs "|" __ -> (->list xs)
                | -> ()
 
-tmps           = "|" _ (identifier:x _ -> (string->symbol x))*:xs "|" _ -> (->list xs)
+tmps           = "|" __ variable*:xs "|" __ -> (->list xs)
                | -> ()
 
-exprs          = expr:x ("." _ expr)*:xs -> `(,x ,@xs)
+stmts          = stmt:x ("." __ stmt)*:xs -> `(,x ,@xs)
                | -> ()
 
-block          = "[" _ args:as tmps:ts exprs:es "]" _ -> `(lambda ,as (let ,ts ,@es))
+block          = "[" __ args:as tmps:ts stmts:es "]" __ -> `(lambda ,as (let ,ts ,@es))
 
-expr           = assign | keyword
+stmt           = assign | keyword
 
-_exprs         = _ exprs
+_stmts         = __ stmts

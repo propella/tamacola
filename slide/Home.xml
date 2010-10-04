@@ -10,41 +10,23 @@
       <br/><br/><br/><br/><br/><br/>
       <font face='Times' size='36'>A Meta Language Kit for the Web</font>
       <br/><br/><br/><br/><br/><br/>
-      <font size='32'>Takashi Yamamiya and Yoshiki Ohshima</font>
+      <font size='32'>Takashi Yamamiya and Yoshiki Ohshima<br/>
+      Viewpoints Research Institute</font>
     </p>
   </page>
 
   <page>
     <p align='center'><font face='Times' size='72'><u>Outline</u></font></p>
-
-    <font face="Times" size="22">
-      Introduction
+    <br/><br/>
+    <font face="Times" size="48">
       <ul>
-        <li>Tamarin VM × COLA → Tamacola</li>
+        <li>Introduction</li>
+        <li>PEG in Tamacola</li>
+        <li>Implementation</li>
+        <li>Applications (Yoshiki Ohshima)</li>
+        <li>Discussions</li>
+        <li>Conclusions</li>
       </ul>
-      <br/>
-      PEG in Tamacola
-      <ul>
-        <li>About this slide, Greetings, Number, S-Expression, Compiler, Recursion</li>
-      </ul>
-      <br/>
-      Implementation
-      <ul>
-        <li>Tools, Build Process, Assembler, Boot-strapping, Test, Frame, Macros, Eval</li>
-      </ul>
-      <br/>
-      Applications
-      <ul>
-        <li>Workspace, Extensions, Other languages (Yoshiki)</li>
-      </ul>
-      <br/>
-      Discussions
-      <ul>
-        <li>Code size, Benchmarks</li>
-      </ul>
-      <br/>
-      Conclusions
-
     </font>
   </page>
 
@@ -65,6 +47,7 @@
     <font face='Times' size='36'><br/><br/><br/>
     <ul>
       <li>Open source VM (Adobe Virtual Machine 2).<br/></li>
+      <li>Part of the Adobe Flash Player (for ActionScript3).<br/></li>
       <li>"The world's most pervasive software platform, used by over 3 million professionals and reaching 99% of Internet-enabled desktops in mature markets as well as a wide range of devices."</li>
     </ul>
     </font>
@@ -75,7 +58,7 @@
     <p><font face='Times' size='64'><u>COLA</u></font></p>
     <font face='Times' size='48'><br/><br/>
     <ul>
-      <li>Scheme like lisp language<br/></li>
+      <li>Scheme like language<br/></li>
       <li>"Chain of Meaning" PEG parser</li>
     </ul>
     </font>
@@ -84,10 +67,13 @@
 
   <page>
     <p><font face='Times' size='64'><u>Tamacola is</u></font></p>
-    <font face='Times' size='48'><br/>
+    <font face='Times' size='48'><br/><br/>
     <ul>
-      <li>Compact, scheme like self-hosting compiler with PEG parser (less than 10,000 LOC)<br/></li>
-      <li>Zero-install-requirement programming tool on Adobe Flash that students can easily access.</li>
+      <li>A Meta language kit (DIY language).<br/><br/></li>
+      <li>PEG parser.</li>
+      <li>Scheme like self hosting compiler.</li>
+      <li>Less than 10,000 lines of code.</li>
+      <li>No need to install (Adobe Flash).</li>
     </ul>
     </font>
   </page>
@@ -108,14 +94,15 @@
 
   <page>
     <p align='center'><font face='Times' size='72'><u>PEG in Tamacola</u></font></p>
-    <font face='Times' size='48'><br/><br/>
+    <font face='Times' size='48'><br/>
+    Let's make a mini mini LISP compiler<br/><br/>
       <ul>
         <li>About this slide</li>
         <li>Greetings</li>
         <li>Number Parser</li>
         <li>S-Expression Parser</li>
         <li>Compiler</li>
-        <li>Recursion</li>
+        <!-- li>Recursion</li -->
       </ul>
     </font>
   </page>
@@ -133,7 +120,7 @@
     <br/>
     <font face='Courier New' size='36'>
 (+ 3 4)
-(throw "Hello, World!")
+(print "Hello, World!")
     </font>
   </page>
 
@@ -164,7 +151,6 @@ num     = dig+
 
 (parse-collection dig "7")
 (parse-collection num "345")
-(parse-collection num "xyz")
 
 ;; Construct a number
 
@@ -269,7 +255,7 @@ asm
     </font>
   </page>
 
-  <page>
+  <!-- page>
     <p><font face='Times' size='64'><u>Recursion (Left? Right?)</u></font></p>
 
 <font face='Times' size='32'>
@@ -296,7 +282,7 @@ numLS = numL
 (parse-collection numLS "345")
     </font>
 
-  </page>
+  </page -->
 
 <!-- ******** Implementation ******** -->
 
@@ -310,7 +296,7 @@ numLS = numL
         <li>Assembler</li>
         <li>Boot from COLA</li>
         <li>Unit Testing framework</li>
-        <li>Frame Layout</li>
+        <!-- li>Frame Layout</li -->
         <li>Macros</li>
         <li>Eval</li>
       </ul>
@@ -423,7 +409,7 @@ runtime/std.k -> runtime/std-test.k
     </font>
   </page>
 
-  <page>
+  <!-- page>
     <p><font face='Times' size='64'><u>Frame Layout</u></font></p>
     <font face='Courier New' size='18'>
 class Obj {
@@ -436,7 +422,7 @@ var obj = new Obj();
 obj.f(10, 20);
     </font>
     <img src='stack.png' />
-  </page>
+  </page -->
 
   <!-- page>
     <p><font face='Times' size='64'><u>Runtime</u></font></p>
@@ -445,13 +431,13 @@ obj.f(10, 20);
   <page>
     <p><font face='Times' size='64'><u>Macros</u></font></p>
     <font face='Times' size='24'>
-    Macro is used as begin, and, or, cond, let*, list, PEG parsers...
+    Macro is used as &#160;<font face='Courier New'>begin, and, or, cond, let*,</font> PEG parsers...
       <br/><br/>
       (define-form &#160; <i>name argument expander</i>)
       <br/>
       <br/>
       <font face='Courier New' size='24'>
-(define-form begin e (cons 'let (cons '() e)))
+(define-form begin e `(let () ,@e))
 
 (macroexpand-1 (begin foo bar buz))
       </font>
@@ -466,7 +452,7 @@ obj.f(10, 20);
                                 (cond . rest))))
 
 (macroexpand-1 (cond (first (somethig))
-                     ('else (otherwise))))
+                     ('else (do-another))))
       </font>
     </font>
   </page>

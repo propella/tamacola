@@ -108,7 +108,7 @@ test-sexp : bin
 	$(TAMACOLA) sexp.k sexp-test.k
 
 test-st : bin
-	$(MKPEG) -n st st.g
+	$(MKPEG) st.g
 	$(TAMACOLA) st.k st-test.k
 
 bin :

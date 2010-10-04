@@ -2,13 +2,12 @@
 
 <!-- ******** Outline ******** -->
 
-  <page>
+  <page><br/>
     <p align='center'>
       <br/><br/><br/><br/><br/><br/>
-      <br/><br/><br/><br/><br/><br/>
       <font face='Times' size='144'><b>Tamacola</b></font>
-      <br/><br/><br/><br/><br/><br/>
-      <font face='Times' size='48'>でスモールトークを作ろう。</font>
+      <br/><br/><br/>
+      <font face='Times' size='48'>で<br/><br/>Smalltalk を作ろう。</font>
       <br/><br/><br/><br/><br/><br/>
       <font size='48'>山宮 隆</font>
     </p>
@@ -16,7 +15,7 @@
 
 <!-- ******** Introduction ******** -->
   
-  <page>
+  <page><br/>
     <p align='center'><font face='Times' size='72'><u>イントロダクション</u></font></p>
     <p align='center'><font face='Times' size='64'><b>
       <br/><br/>
@@ -26,7 +25,7 @@
     </b></font></p>
   </page>
 
-  <page>
+  <page><br/>
     <p><font face='Times' size='64'><u>Tamarin VM</u></font></p>
     <font face='Times' size='36'><br/><br/><br/>
     <ul>
@@ -37,7 +36,7 @@
 
   </page>
 
-  <page>
+  <page><br/>
     <p><font face='Times' size='64'><u>COLA</u></font></p>
     <font face='Times' size='48'><br/><br/>
     <ul>
@@ -48,17 +47,19 @@
 
   </page>
 
-  <page>
+  <page><br/>
     <p><font face='Times' size='64'><u>Tamacola とは</u></font></p>
-    <font face='Times' size='48'><br/>
+    <font face='Times' size='48'><br/><br/>
     <ul>
-      <li>コンパクトな Scheme 風自己記述言語。PEG パーサ付き。(一万行以下)<br/></li>
-      <li>Adobe Flash 上で動きインストール不要。学生さんにも簡単アクセス。</li>
+      <li>コンパクト(一万行以下)。</li>
+      <li>Scheme 風自己記述言語。</li>
+      <li>べんりな PEG パーサ付き。</li>
+      <li>Flash で動きインストール不要。</li>
     </ul>
     </font>
   </page>
 
-  <page>
+  <!-- page>
     <p><font face='Times' size='64'><u>Tamacola に無いもの</u></font></p>
     <font face='Times' size='48'><br/><br/>
       <ul>
@@ -68,424 +69,364 @@
         <li>可変長引数</li>
       </ul>
     </font>
-  </page>
+  </page -->
 
 <!-- ******** PEG in Tamacola ******** -->
 
-  <page>
-    <p align='center'><font face='Times' size='72'><u>Tamacola で<br/>スモールトーク<br/>(のようなもの)を作ろう</u></font></p>
-    <font face='Times' size='48'><br/><br/>
+  <page><br/>
+    <p align='center'><font face='Times' size='72'><u>PEG 入門</u></font></p>
+    <font face='Times' size='48'><br/>
+<p align='center'>Tamacola で Smalltalk<br/>(のようなもの)を作ろう<br/></p>
       <ul>
-        <li>About this slide</li>
-        <li>Greetings</li>
-        <li>Number Parser</li>
-        <li>S-Expression Parser</li>
-        <li>Compiler</li>
-        <li>Recursion</li>
+        <li>Smalltak 文を S 式に変換。</li>
+        <li>さらにバイトコードに変換。</li>
+        <li>Flash Player で実行</li>
       </ul>
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>About the slide tool</u></font></p>
+  <page><br/>
+    <p><font face='Times' size='64'><u>このスライドについて</u></font></p>
     <font face='Times' size='36'><br/>
-    This slide is written in Tamacola, it works like a Smalltalk's Workspace.<br/><br/>
+    Tamacola 製。Smalltalk の Workspace みたいに実行出来る。<br/><br/>
       <ul>
-        <li>[Print It] evaluates and prints the result</li>
-        <li>[Do It] only evaluates a Tamacola expression</li>
-        <li>[PEG] defines a new parser</li>
+        <li>[Print It] 実行して表示。</li>
+        <li>[Do It] 実行だけ。</li>
+        <li>[PEG] パーサーを作る。</li>
       </ul>
     </font>
     <br/>
     <font face='Courier New' size='36'>
 (+ 3 4)
-(throw "Hello, World!")
+(print "Hello, World!")
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>Greeting</u></font></p>
+  <page><br/>
+    <p><font face='Times' size='64'><u>ご挨拶</u></font></p>
     <br/><br/>
-    <font face='Courier New' size='24'>
+    <font face='Courier New' size='32'>
 
-greeting = "morning" -> "Good Morning!"
-         | "evening" -> "Good Evening!"
+greeting = "あさ" -> "お早うございます。"
+         | "よる" -> "今晩は"
 
-;; Test
+;; テスト
 
-(parse-collection greeting "morning")
-(parse-collection greeting "evening")
+(parse-collection greeting "あさ")
+(parse-collection greeting "よる")
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>Number Parser</u></font></p>
+  <page><br/>
+    <p><font face='Times' size='64'><u>コメントと空白</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+space = [ \t\r\n]
+cmt   = "\"" (!"\"" .)* "\""
+__    = (space | cmt)*
+
+;; テスト
+(parse-collection space "  ")
+(parse-collection cmt   "\"コメント\"")
+(parse-collection __    "  ")
+(parse-collection __    "  \"コメント\"  ")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>数字</u></font></p>
     <br/>
     <font face='Courier New' size='24'>
-
 dig     = [0123456789]
 num     = dig+
 
-;; Test
+;; テスト
 
 (parse-collection dig "7")
 (parse-collection num "345")
-(parse-collection num "xyz")
 
-;; Construct a number
+;; 数字を作る
 
-num  = dig+:n -> (string->number (->string n))
-
+num  = dig+:n __ -> (string->number (->string n))
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>S-expression Parser</u></font></p>
-    <font face='Courier New' size='18'>
-sp   = [ \t\r\n]*       -> 'SPACES
-
-dig  = [0123456789]
-num  = dig+ :n sp       -> (string->number (->string n))
-
-char = [+-*/abcdefghijklmnopqrstuvwxyz]
-sym  = char+ :s sp      -> (intern (->string s))
-        
-sexp  = sym
-      | num
-      | "(" sexp*:e ")" -> (->list e)
-
-;; Tests
-(parse-collection sp "    ")
-(parse-collection dig "0")
-(parse-collection num "345")
-(parse-collection char "a")
-(parse-collection sym "hello")
-
-(parse-collection sexp "345")
-(parse-collection sexp "hello")
-(parse-collection sexp "(hello world)")
-(parse-collection sexp "(3 4)")
-(parse-collection sexp "(print 4)")
-
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Compiler</u></font></p>
-    <font face='Courier New' size='14'>
-len   = .*:x                        -> (length (->list x))
-insts = inst* :xs                   -> (concatenate (->list xs)) 
-                                        
-inst  = is-number:x                 -> `((pushint ,x))
-      | is-symbol:x                 -> `((getlex ((ns "") ,(symbol->string x))))
-      | '( '+ inst:x inst:y )       -> `(,@x ,@y (add))
-      | '( '- inst:x inst:y )       -> `(,@x ,@y (subtract))
-      | '( '* inst:x inst:y )       -> `(,@x ,@y (multiply))
-      | '( '/ inst:x inst:y )       -> `(,@x ,@y (divide))
-      | '( inst:f &amp;len:n insts:a )  -> `(,@f (pushnull) ,@a (call ,n))
-
-;; User defined predicates
-(define is-number
-  (lambda (*stream* *parser*)
-    (if (number? (peek *stream*))
-        (begin (set-parser-result *parser* (next *stream*))
-               #t)
-        #f)))
-
-(define is-symbol
-  (lambda (*stream* *parser*)
-    (if (symbol? (peek *stream*))
-        (begin (set-parser-result *parser* (next *stream*))
-               #t)
-        #f)))
-
-;; Tests
-(parse-collection len '(a b c))
-(parse-collection inst '(3))
-(parse-collection inst '((+ 3 4)))
-(parse-collection inst '((f 3 4)))
-(parse-collection insts '(3 4))
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Mini Lisp</u></font></p>
-
-    <font face='Courier New' size='18'>
-program = inst:x  ->
-`(asm
-  (method (((signature
-             ((return_type *) (param_type ()) (name "program")
-              (flags 0) (options ()) (param_names ())))
-            (code ((getlocal 0)
-                   (pushscope)
-                   ,@x
-                   (returnvalue))))))
-  (script (((init (method 0)) (trait ())))))
-
-;; Test
-(define asm (parse-collection program '((print (+ 3 4)))))
-asm
-
-(define code (call-with-output-bytes
-               (lambda (port) (write-asm asm port))))
-(bytes->list code)
-
-(load-byte-codes code '())
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Recursion (Left? Right?)</u></font></p>
-
-<font face='Times' size='32'>
-<p align='center'>PEG doesn't support left recursion,<br/>but Arabic Numbers are left recursion:<br/>
-3456 = (((3 * 10 + 4) * 10 + 5) * 10 + 6)</p>
-</font>
-
-    <font face='Courier New' size='18'>
-;; Use fold-left
-dig   = [0123456789]:d -> (- d 48)
-numR  = dig:x dig*:xs  -> (fold-left
-                            (lambda (n d) (+ (* n 10) d))
-                            x
-                            (->list xs))
-
-;; Use left-recursion
-dig   = [0123456789]:d -> (- d 48)
-numL  = numL:n dig:d   -> (+ (* n 10) d)
-      | dig
-numLS = numL
-
-;; Tests
-(parse-collection numR "345")
-(parse-collection numLS "345")
-    </font>
-
-  </page>
-
-<!-- ******** Implementation ******** -->
-
-  <page>
-    <p align='center'><font face='Times' size='72'><u>Implementation</u></font></p>
-    <br/><br/>
-    <font face='Times' size='48'>
-      <ul>
-        <li>Tools</li>
-        <li>Build Process</li>
-        <li>Assembler</li>
-        <li>Boot from COLA</li>
-        <li>Unit Testing framework</li>
-        <li>Frame Layout</li>
-        <li>Macros</li>
-        <li>Eval</li>
-      </ul>
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Tools</u></font></p>
-    <font face='Times' size='36'>
-      <ul>
-        <li>tamacc: Tamacola Compiler</li>
-        <li>tamacola: Tamacola Shell</li>
-      </ul>
-    </font>
-    <br/><br/>
-    <img src='tools.png'/>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Build Process</u></font></p>
-    <p align='center'><font face='Times' size='36'>
-      3 sets of mkpeg, tamacc, and mkswf.<br/>
-      <br/>
-      Boot-strapping phase (COLA VM)<br/>
-      in COLA
-      <br/>↓<br/><br/>
-      Stage1: Hybrid Phase (Tamarin VM)<br/>
-      in Tamacola function + COLA macro
-      <br/>↓<br/><br/>
-      Stage2: Production Phase (Tamarin VM)<br/>
-      in Tamacola
-    </font></p>
-  </page>
-
-  <!-- page>
-    <p><font face='Times' size='64'><u>Build Process</u></font></p>
-    <img src='buildprocess.png' />
-  </page -->
-
-  <page>
-    <p><font face='Times' size='64'><u>Assembler</u></font></p>
-    <font face='Times' size='28'>
-
-      "Hello, World" program written in ABCSX
-      <br/>
-    </font>
-    <font face='Courier New' size='18'>
-(asm
- (method
-  (((signature
-     ((return_type *) (param_type ()) (name "hello")
-      (flags 0) (options ()) (param_names ())))
-    (code
-     ((getlocal 0)
-      (pushscope)
-      (findpropstrict ((package "") "print"))
-      (pushstring "Hello, World!!")
-      (callproperty ((package "") "print") 1)
-      (returnvoid))))))
- (script (((init (method 0)) (trait ())))))
-     </font>
-    <font face='Times' size='28'>
-      <br/>
-      <ul>
-        <li>ABCSX (ABC in S-eXpression) is an assembler and disassembler for ABC (Adobe Byte Code).</li>
-        <li>S-expression is used to describe a program.</li>
-        <li>ABCSX runs on COLA / Racket (PLT) / Gauche.</li>
-      </ul>
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Boot from COLA</u></font></p>
-    <font face='Times' size='36'>
-      <br/>
-      Necessary libraries:
-      <br/><br/>
-      <ul>
-        <li><b>Unit Testing framework</b> (SRFI-78 check).</li>
-        <li>List manipulations (map, fold, ...).</li>
-        <li>String functions (substring, verious conversion).</li>
-        <li>Generic functions (define-generic, define-method).</li>
-        <li><b>Bitwise operators and byte streams</b> (write-byte, ...).</li>
-        <li>Pretty printer.</li>
-      </ul>
-    </font>
-  </page>
-
-  <page>
-    <p><font face='Times' size='64'><u>Unit testing framework</u></font></p>
+  <page><br/>
+    <p><font face='Times' size='64'><u>識別子</u></font></p>
     <br/>
-    <font face='Times' size='32'>
-      A simple subset of SFRI-78.
-    <br/><br/>
     <font face='Courier New' size='28'>
+letter = [ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_]
+ident  = letter:x (letter | dig)* :xs
+       -> (list->string `(,x ,@xs))
 
-(check '(cola is cool) => '(cola is cool))
-(check '(cola is cool) => '(cola is lukewarm))
+;; テスト
+(parse-collection ident "SmallTalk")
 
-    </font>
-    <br/><br/><br/><br/>
-      File naming convention (based on the Go language)
-    <br/><br/>
-    <font face='Courier New' size='28'>
-target:          source:
-runtime/std.k -> runtime/std-test.k
-    </font>
-
-
+;; 参考 クアジクォートとは?
+(let ((x 'S)
+      (xs '(m a l l T a l k)))
+      `(,x ,@xs))
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>Frame Layout</u></font></p>
+  <page><br/>
+    <p><font face='Times' size='64'><u>文字列</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+string-body   = (!"'" . | "''" )*:xs
+              -> (list->string (->list xs))
+quoted-string = "'" string-body:x "'" __ 
+              -> x
+
+;; テスト
+(parse-collection string-body "なんとか")
+(parse-collection string-body "''これはok")
+
+(parse-collection quoted-string "''")
+(parse-collection quoted-string "'hello'")
+(parse-collection quoted-string "'''hello'''")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>シンボル</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+#symbol を (quote symbol) に変換する。
+
+sym = "#" ident:x __
+    -> `(quote ,(string->symbol x))
+
+;; テスト
+(parse-collection sym "#hello")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>変数</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+reserved = "true"  __ -> '#t
+         | "false" __ -> '#f
+         | "self"  __ -> '#self
+variable = ident:x __ -> (string->symbol x)
+
+;; テスト
+(parse-collection reserved "true")
+(parse-collection reserved "false")
+(parse-collection reserved "self")
+(parse-collection variable "someThing")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>括弧</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+unit = num
+     | reserved
+     | variable
+     | sym
+     | quoted-string
+     | "(" __ stmt :x ")" __ -> x
+     | block
+stmt = unit
+
+;; テスト
+(parse-collection unit "345")
+(parse-collection unit "self")
+(parse-collection unit "'六本木'")
+(parse-collection unit "('六本木')")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>単項メッセージ</u></font></p>
+    <br/>
+    <font face='Courier New' size='24'>
+unary      = unit:x unary-rest*:ms
+           -> (fold-left
+                (lambda (r m)
+                  `(send ,r ,(string->symbol m)))
+                x
+                (->list ms))
+unary-rest = ident:m !":" __
+           -> m
+stmt       = unary
+
+;; テスト
+(parse-collection unary "345 foo")
+(parse-collection unary "345 foo bar")
+(parse-collection unary "345")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>二項メッセージ</u></font></p>
+    <br/>
+    <font face='Courier New' size='24'>
+binary      = unary:x ( binary-rest+ :ms
+            -> (fold-left
+                 (lambda (r m) `(,(car m) ,r ,(cadr m)))
+                   x
+                   (->list ms))
+            | -> x ) 
+
+binop       = [!%&amp;*+,/&lt;=&gt;?@\~|-]
+binary-rest = binop:op __ unary:x
+            -> `(,(string->symbol (char->string op)) ,x)
+stmt       = binary
+
+;; テスト
+(parse-collection binary-rest "+ 4")
+(parse-collection binary "3 + 4")
+(parse-collection binary "3 + 4 * 5")
+(parse-collection binary "(3 + 4) * 5")
+(parse-collection binary "3 foo * 5")
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>キーワードメッセージ</u></font></p>
+    <br/>
     <font face='Courier New' size='18'>
-class Obj {
-  function f(x, y) {
-    var g = function(z) { return h(x, 30) };
-    g(y); // (← The picture below shows the stack here.)
-  }
-}
-var obj = new Obj();
-obj.f(10, 20);
-    </font>
-    <img src='stack.png' />
-  </page>
+keyword      = binary:x ( keyword-rest:m
+             -> `(send ,x ,(string->symbol (car m)) ,@(cdr m))
+             | -> x )
 
-  <!-- page>
-    <p><font face='Times' size='64'><u>Runtime</u></font></p>
-  </page -->
+keyword-rest = keyword-part+:xs
+             -> (fold-right
+                  (lambda (e result)
+                    (let ((word (+ (car e) ":"))
+                          (arg  (cdr e)))
+                          (cons (+ word (car result))
+                         (cons arg (cdr result)))))
+                  (cons "" ())
+                  (->list xs))
+keyword-part = ident:m ":" __ binary:x      -> (cons m x)
+stmt         = keyword
 
-  <page>
-    <p><font face='Times' size='64'><u>Macros</u></font></p>
-    <font face='Times' size='24'>
-    Macro is used as begin, and, or, cond, let*, list, peg parsers...
-      <br/><br/>
-      (define-form name argument expander)
-      <br/>
-      <br/>
-      <font face='Courier New' size='24'>
-(define-form begin e (cons 'let (cons '() e)))
-
-(macroexpand-1 (begin foo bar buz))
-      </font>
-      <br/><br/>
-      (define-pattern (template pattern) ...)
-      <br/><br/>
-      <font face='Courier New' size='24'>
-(define-pattern
-  ((cond)                   ())
-  ((cond (c0 . b0) . rest)  (if c0
-                                (begin . b0)
-                                (cond . rest))))
-
-(macroexpand-1 (cond (first (somethig))
-                     ('else (otherwise))))
-      </font>
+;; テスト
+(parse-collection keyword-part "first: 1")
+(parse-collection keyword-rest "first: 1 second: 2")
+(parse-collection keyword "1 first: 2")
+(parse-collection keyword "1 first: 2 second: 3")
     </font>
   </page>
 
-  <page>
-    <p><font face='Times' size='64'><u>Eval</u></font></p>
-      <br/>
-    <font face='Times' size='36'>
-      Console (avmshell) environment<br/>-- abc code, synchronous
-      <br/><br/>
-      <font face='Courier New' size='24'>
-avmplus.Domain.
-  loadBytes(bytes:ByteArray)
-      </font>
-      <br/><br/><br/>
-      Adobe Flash environment<br/>-- swf data, asynchronous
-      <br/><br/>
-      <font face='Courier New' size='24'>
-flash.display.Loader.
-  loadBytes(bytes:ByteArray,
-            context:LoaderContext = null)
-      </font>
-    </font>
+  <page><br/>
+    <p><font face='Times' size='64'><u>代入</u></font></p>
+    <br/>
+    <font face='Courier New' size='28'>
+assign = ident:v __ ":=" __ stmt:x
+       -> `(set! ,(string->symbol v) ,x)
 
-  </page>
-
-<!-- ******** Applications ******** -->
-
-  <page>
-    <p align='center'><font face='Times' size='72'><u>Applications</u></font></p>
-    <br/><br/>
-    <font face='Times' size='48'>
-      <ul>
-        <li>Workspace</li>
-        <li>Extensions: Optimization, Left recursion (Yoshiki)</li>
-        <li>Other languages: Particles, ...(Yoshiki)</li>
-      </ul>
+;; テスト
+(parse-collection assign "a := 1")
+(parse-collection assign "a := 3 + 4 foo: 5")
     </font>
   </page>
 
-<!-- ******** Discussions ******** -->
+  <page><br/>
+    <p><font face='Times' size='64'><u>ブロック</u></font></p>
+    <br/>
+    <font face='Courier New' size='18'>
+args   = (":" variable)+:xs  "|" __ -> (->list xs)
+       |                            -> ()
 
+tmps   = "|" __ variable*:xs "|" __ -> (->list xs)
+       |                            -> ()
 
-  <page>
-    <p align='center'><font face='Times' size='72'><u>Discussions</u></font></p>
-    <br/><br/>
-    <font face='Times' size='48'>
-      <ul>
-        <li>Code size</li>
-        <li>Benchmarks</li>
-      </ul>
+stmts  = stmt:x ("." __ stmt)*:xs   -> `(,x ,@xs)
+       |                            -> ()
+
+block  = "[" __ args:as tmps:ts stmts:es "]" __
+       -> `(lambda ,as (let ,ts ,@es))
+
+stmt   = assign | keyword
+_stmts = __ stmts
+
+;; テスト
+(parse-collection args ":a :b |")
+(parse-collection tmps "| a b |")
+(parse-collection stmts "1. 2. 3")
+(parse-collection block "[ :arg | | t1 t2  | some message: 7 ]")
     </font>
   </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>実行エンジン</u></font></p>
+    <br/>
+    <font face='Courier New' size='24'>
+(define st/compile
+  (lambda (str) (parse-collection _stmts str)))
+
+(define st/eval
+  (lambda (str)
+    (eval `(print ,@(st/compile str)))))
+
+;; テスト
+(st/compile "3 + 4")
+(st/eval "3 + 4")
+
+
+
+ここに謎の [ST] ボタンがある。---------------↓
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>ランタイム</u></font></p>
+    <br/>
+    <font face='Courier New' size='20'>
+(slot-setq! (slot-getq Function prototype) value
+            (lambda (a1) (#self)))
+[3 + 4] value.
+
+(slot-setq! (slot-getq Function prototype) value:
+            (lambda (a1) (#self a1)))
+[ :x | x + x ] value: 10.
+
+(slot-setq! (slot-getq Object prototype) at:
+            (lambda (key) (slot-get #self key)))
+'スモールトーク' at: #length.
+
+(slot-setq! (slot-getq Boolean prototype) ifTrue:ifFalse:
+            (lambda (a b) (if #self (a) (b))))
+(1 &gt; 0) ifTrue: ['真'] ifFalse: ['偽'].
+
+(slot-setq! (slot-getq Object prototype) println
+            (lambda () (println #self)))
+'Hello, World!' println.
+    </font>
+  </page>
+
+  <page><br/>
+    <p><font face='Times' size='64'><u>メソッド定義</u></font></p>
+    <br/>
+    <font face='Courier New' size='20'>
+            
+(slot-setq! (slot-getq Object prototype) methodAt:put:
+  (lambda (method block)
+    (slot-set! (slot-getq #self prototype) method block)))
+
+Number methodAt: #fib put:
+[
+  | i |
+  i := self.
+  (self &lt; 2) ifTrue: [1]
+             ifFalse: [ (i - 1) fib + (i - 2) fib]
+]
+
+1 fib.
+2 fib.
+3 fib.
+4 fib.
+10 fib.
+
+    </font>
+  </page>
+
 
   <page>
     <p><font face='Times' size='64'><u>Code size</u></font></p>
@@ -493,7 +434,7 @@ flash.display.Loader.
     <p align='center'><img src='loc.png' align='center'/></p>
   </page>
 
-  <page>
+  <page><br/>
     <p><font face='Times' size='64'><u>Benchmarks</u></font></p>
     <br/>
     <img src='benchmarks.png'/>
@@ -514,16 +455,16 @@ flash.display.Loader.
 
 <!-- ******** Conclusions ******** -->
 
-<page>
-    <p align='center'><font face='Times' size='72'><u>Conclusions</u></font></p>
+<page><br/>
+    <p align='center'><font face='Times' size='72'><u>まとめ</u></font></p>
     <font face='Times' size='36'>
       <br/>
       <br/><br/>
       <ul>
-        <li>Compact self hosting lisp compiler</li>
-        <li>PEG parser generator / list transformer</li>
-        <li>Run on Adobe Flash</li>
-        <li>Dynamic programming environment for the Web</li>
+        <li>Smalltalk のような物を作ってみました。</li>
+        <li>Tamacola は 言語を作るためのツール。</li>
+        <li>Flash 上で動きます。</li>
+        <li>ブラウザ的な物はまだありません。</li>
       </ul>
     </font>
   </page>
