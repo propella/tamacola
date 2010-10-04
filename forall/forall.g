@@ -111,11 +111,13 @@ expr4          = expr4:x ("!=" | "~=") _ expr3:u                         -> `(no
                | expr4:x "=="          _ expr3:u                         -> `(= ,x ,u)
                | expr3
 
-expr5          = expr4:x ("&&" _ expr4:u                            -> `(and ,x ,u):x)* -> x
+expr5          = expr5:x "&&" _ expr4:u                                  -> `(and ,x ,u)
+	       | expr4
 
-expr6          = expr5:x ("||" _ expr5:u                            -> `(or ,x ,u):x)* -> x
+expr6          = expr6:x "||" _ expr5:u                                  -> `(or ,x ,u)
+	       | expr5
 
-expr7          = expr7:x "?" _ expr7:y ":" _ expr7:z                -> `(if ,x ,y ,z)
+expr7          = expr7:x "?" _ expr7:y ":" _ expr7:z                     -> `(if ,x ,y ,z)
                | expr6
 
 expr           = expr7
