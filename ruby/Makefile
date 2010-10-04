@@ -23,11 +23,11 @@ test-ruby.syntax : ruby.abc ruby-support.abc ruby-test.abc
 	../stage2/tamacola $^
 
 ruby.abc  : ruby.g ../runtime/peg-memo-macro.k
-	$(AVM) ../stage2/mkpeg.swf -- $<
+	$(AVM) ../stage2/mkpeg.swf -- -n ruby $<
 	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k ../runtime/peg-memo-macro.k $(subst .g,,$<).k
 
 ruby-trans.abc  : ruby-trans.g
-	$(AVM) ../stage2/mkpeg.swf -- $<
+	$(AVM) ../stage2/mkpeg.swf -- -n ruby-trans $<
 	$(TAMACC) -o $@ ../runtime/core.k ../runtime/peg.k $(subst .g,,$<).k
 
 %.abc : %.k

@@ -1,169 +1,168 @@
 ;; -*- fundamental -*-
 
-__              = [ \t\r\n]*
-___             = [ \t]*
-ralpha          = [_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
-rdigit10        = [0123456789]
+_              = [ \t\r\n]*
+__             = [ \t]*
+alpha          = [_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
+digit10        = [0123456789]
 
-rescaped        = "\\"     ( "e"        -> 27
-                           | "a"        ->  7
-                           | "b"        ->  8
-                           | "f"        -> 12
-                           | "n"        -> 10
-                           | "r"        -> 13
-                           | "t"        ->  9
-                           | "v"        -> 11
-                           | "'"        -> 39
-                           | "\""       -> 34
-                           | "\\"       -> 92
-                           )
+escaped        = "\\" ("e"        -> 27
+                       | "a"        ->  7
+                       | "b"        ->  8
+                       | "f"        -> 12
+                       | "n"        -> 10
+                       | "r"        -> 13
+                       | "t"        ->  9
+                       | "v"        -> 11
+                       | "'"        -> 39
+                       | "\""       -> 34
+                       | "\\"       -> 92
+                      )
 
-rcharacter      = rescaped | .
-rstring         = __ ("\"" (!"\"" rcharacter)*:s "\""
-		     |"\'" (!"\"" rcharacter)*:s "\'"
-		     |"\`" (!"\"" rcharacter)*:s "\`")                  -> `(string ,(->string s))
+character      = escaped | .
+string         = _ ("\"" (!"\"" character)*:s "\""
+                    |"\'" (!"\"" character)*:s "\'"
+                    |"\`" (!"\"" character)*:s "\`")                  -> `(string ,(->string s))
 
-rT		= (__ ";" | ___ "\r" | ___ "\n" | ___ "\r\n")
-rDEF		= __ "def"
-rIF		= __ "if"
-rDO		= rT __ "do"   | __ "do"   | rT
-rTHEN		= rT __ "then" | __ "then" | rT
-;rTHEN		= __ "then"
-rELSE		= __ "else"
-rELSIF		= __ "elsif"
-rWHILE		= __ "while"
-rFOR		= __ "for"
-rIN		= __ "in"
-rCLASS		= __ "class"
-rEND		= __ "end"
+T              = (_ ";" | __ "\r" | __ "\n" | __ "\r\n")
+DEF            = _ "def"
+IF             = _ "if"
+DO             = T _ "do"   | _ "do"   | T
+THEN           = T _ "then" | _ "then" | T
+ELSE           = _ "else"
+ELSIF          = _ "elsif"
+WHILE          = _ "while"
+FOR            = _ "for"
+IN             = _ "in"
+CLASS          = _ "class"
+END            = _ "end"
 
-rnsName         = (ralpha (rdigit10 | ralpha)*) @:x			-> (->string x)
-rdouble         = (("+" | "-")? rdigit10+ "." rdigit10+)@:n         	-> (string->double (->string n))
-rinteger        = rinteger:n (rdigit10:c -> (- c #"0")):d		-> (+ (* n 10) d)
-		| rinteger:n "_"	     	  			-> n
-		| rdigit10:c 						-> (- c #"0")
+nsName         = (alpha (digit10 | alpha)*) @:x                 -> (->string x)
+double         = (("+" | "-")? digit10+ "." digit10+)@:n        -> (string->double (->string n))
+integer        = integer:n (digit10:c -> (- c #"0")):d          -> (+ (* n 10) d)
+               | integer:n "_"                                  -> n
+               | digit10:c                                      -> (- c #"0")
 
-rnumeric        = __ (rdouble | rinteger):x						  -> `(numeric ,x)
-ridentifier     = __ (("defined?" | rnsName):x -> (intern x):x) !<ruby-reservedq x>       -> `(ident ,x)
+numeric        = _ (double | integer):x                         -> `(numeric ,x)
+identifier     = _ (("defined?" | nsName):x -> (intern x):x) !<ruby-reservedq x>       -> `(ident ,x)
 
-rvarName	= ("$" ridentifier | ("@" ridentifier) | ridentifier)@:x 	 	  -> `(ident ,(intern (->string x)))
+varName        = ("$" identifier | ("@" identifier) | identifier)@:x               -> `(ident ,(intern (->string x)))
 
-rvariable	= __ (rvarName | "self" -> '(ident self))
-rsymbol		= __ ":" (rfname | rvarName):x						  -> `(symbol ,(intern x))
-rliteral	= rnumeric | rsymbol | rstring
-		| __ ("true" -> '(ident true) | "false" -> '(ident false) | "nil"	  -> '(ident null))
+variable        = _ (varName | "self" -> '(ident self))
+symbol          = _ ":" (fname | varName):x                                        -> `(symbol ,(intern x))
+literal         = numeric | symbol | string
+                | _ ("true" -> '(ident true) | "false" -> '(ident false) | "nil"   -> '(ident null))
 
-rfname		= ridentifier
-		| __ (".." | "|" | "^" | "&" | "<=>" | "==" | "===" | "=~" | ">>"
-		     | "<<" | ">=" | ">" | "<=" | "<" | "+" | "-" | "*" | "/"
-		     | "%" | "**" | "~" | "+@" | "-@" | "[]" | "[]="):op		  -> `(ident ,(intern (->string op)))
+fname           = identifier
+                | _ (".." | "|" | "^" | "&" | "<=>" | "==" | "===" | "=~" | ">>"
+                     | "<<" | ">=" | ">" | "<=" | "<" | "+" | "-" | "*" | "/"
+                     | "%" | "**" | "~" | "+@" | "-@" | "[]" | "[]="):op           -> `(ident ,(intern (->string op)))
 
-rPrimExpr	= __ "::" ridentifier
-		| __ "return" __ rcall-args:a						  -> `(return ,@a)
-		| __ "yield" __ rcall-args						  -> `(yield ,@a)
-		| __ "defined?" __ "(" rarg ")"
-		| __ "(" rexpr:a __ ")"							  -> a
-		| (rIF rexpr:a rTHEN rcomp-stmt:b -> `(cond (,a ,b)):r)
-                              (rELSIF rexpr:a rTHEN rcomp-stmt:b -> `(,@r (,a ,b)):r)*
-                              (rELSE rcomp-stmt:b -> `(,@r (#t ,b)):r)? rEND              -> r
-		| rWHILE rexpr:a rDO rcomp-stmt:b rEND   	      			  -> `(while ,a ,b)
-		| rFOR rlhs+:l rIN rexpr:r rDO rcomp-stmt:s rEND			  -> `(for ,(->list l) ,r ,s)
-		| rCLASS ridentifier __ ("<" ridentifier)? rcomp-stmt rEND
-		| rDEF rfname:n rargdecl:d rcomp-stmt:s rEND				  -> `(def ,n ,d ,s)
-		| __ "super" (__ "(" rcall-args:a ")")?			     (rfblock:v)? -> `(super ,v ,@a)
-		| rPrimExpr:r __ "." roperation:s __ "(" rcall-args:a __ ")" (rfblock:v)? -> `(send ,s ,r ,v ,@a)
-		| rPrimExpr:r __ "." roperation:s      	  	       	     (rfblock:v)? -> `(send ,r ,s ,v)
-		| roperation:a __ "(" rcall-args:b __ ")"	    	     (rfblock:v)? -> `(call ,a ,v ,@b)
-		| rPrimExpr __ "::" ridentifier
-		| rliteral
-		| rvariable
+primExpr        = _ "::" identifier
+                | _ "return" _ call-args:a                                         -> `(return ,@a)
+                | _ "yield"  _ call-args                                           -> `(yield ,@a)
+                | _ "defined?" _ "(" arg ")"
+                | _ "(" expr:a _ ")"                                               -> a
+                | (IF expr:a THEN comp-stmt:b -> `(cond (,a ,b)):r)
+                              (ELSIF expr:a THEN comp-stmt:b -> `(,@r (,a ,b)):r)*
+                              (ELSE comp-stmt:b -> `(,@r (#t ,b)):r)? END          -> r
+                | WHILE expr:a DO comp-stmt:b END                                  -> `(while ,a ,b)
+                | FOR lhs+:l IN expr:r DO comp-stmt:s END                          -> `(for ,(->list l) ,r ,s)
+                | CLASS identifier _ ("<" identifier)? comp-stmt END
+                | DEF fname:n argdecl:d comp-stmt:s END                            -> `(def ,n ,d ,s)
+                | _ "super" (_ "(" call-args:a ")")?                   (fblock:v)? -> `(super ,v ,@a)
+                | primExpr:r _ "." operation:s _ "(" call-args:a _ ")" (fblock:v)? -> `(send ,s ,r ,v ,@a)
+                | primExpr:r _ "." operation:s                         (fblock:v)? -> `(send ,r ,s ,v)
+                | operation:a _ "(" call-args:b _ ")"                  (fblock:v)? -> `(call ,a ,v ,@b)
+                | primExpr _ "::" identifier
+                | literal
+                | variable
 
-rfblock		= __ "{" ( __ "|" rblock-vars:v __ "|")? rcomp-stmt:s __ "}"		  -> `(block ,v ,s)
+fblock          = _ "{" ( _ "|" block-vars:v _ "|")? comp-stmt:s _ "}"             -> `(block ,v ,s)
 
-rexpr1		= rexpr1:a __ "[" rargs:b __ "]"					  -> `(index ,a ,@b)
-		| rPrimExpr
+expr1           = expr1:a _ "[" args:b _ "]"                                       -> `(index ,a ,@b)
+                | primExpr
 
-rexpr2		= __ ("+" -> 'identity | "-" -> 'neg
-		     | "!" -> 'not | "~" -> 'bitNot):op rexpr2:a			  -> `(,op ,a)
-		| rexpr1
+expr2           = _ ("+" -> 'identity | "-" -> 'neg
+                     | "!" -> 'not | "~" -> 'bitNot):op expr2:a                    -> `(,op ,a)
+                | expr1
 
-rexpr3		= rexpr3:a __ "**" rexpr2:b						  -> `(exp ,a ,b)
-		| rexpr2
+expr3           = expr3:a _ "**" expr2:b                                           -> `(exp ,a ,b)
+                | expr2
 
-rexpr4		= rexpr4:a __ ("*" -> '* | "/" -> '/ | "%" -> '%):op rexpr3:b	          -> `(,op ,a ,b)
-		| rexpr3
+expr4           = expr4:a _ ("*" -> '* | "/" -> '/ | "%" -> '%):op expr3:b         -> `(,op ,a ,b)
+                | expr3
 
-rexpr5		= rexpr5:a __ ("+" -> '+ | "-" -> '-):op rexpr4:b			  -> `(,op ,a ,b)
-		| rexpr4
+expr5           = expr5:a _ ("+" -> '+ | "-" -> '-):op expr4:b                     -> `(,op ,a ,b)
+                | expr4
 
-rexpr6		= rexpr6:a __ ("<<" -> '<<| ">>" -> '>>):op rexpr5:b			  -> `(,op ,a ,b)
-		| rexpr5
+expr6           = expr6:a _ ("<<" -> '<<| ">>" -> '>>):op expr5:b                  -> `(,op ,a ,b)
+                | expr5
 
-rexpr7		= rexpr7:a __ "&" rexpr6:b					          -> `(logAnd ,a ,b)
-		| rexpr6
+expr7           = expr7:a _ "&" expr6:b                                            -> `(logAnd ,a ,b)
+                | expr6
 
-rexpr8		= rexpr8:a __ ("|" -> 'logOR| "^" -> 'logXor):op rexpr7:b		  -> `(,op ,a ,b)
-		| rexpr7
+expr8           = expr8:a _ ("|" -> 'logOR | "^" -> 'logXor):op expr7:b            -> `(,op ,a ,b)
+                | expr7
 
-rexpr9		= rexpr9:a __ (">=" -> '>= | ">" -> '>
-		  	      | "<=" -> '<= | "<" -> '<):op rexpr8:b			  -> `(,op ,a ,b)
-		| rexpr8
+expr9           = expr9:a _ (">=" -> '>= | ">" -> '>
+                             | "<=" -> '<= | "<" -> '<):op expr8:b                 -> `(,op ,a ,b)
+                | expr8
 
-rOpExpr10	= "<=>" -> 'comp | "==" -> 'eq | "===" -> 'strict-eq
-		| "!=" -> 'not-eq | "=~" -> 'match | "!~" -> 'not-match
+opExpr10        = "<=>" -> 'comp | "==" -> 'eq | "===" -> 'strict-eq
+                | "!=" -> 'not-eq | "=~" -> 'match | "!~" -> 'not-match
 
-rexpr10		= rexpr10:a __ rOpExpr10:op rexpr9:b					  -> `(,op ,a ,b)
-		| rexpr9
+expr10          = expr10:a _ opExpr10:op expr9:b                                   -> `(,op ,a ,b)
+                | expr9
 
-rexpr11		= rexpr11:a __ "&&" rexpr10:b						  -> `(and ,a ,b)
-		| rexpr10
+expr11          = expr11:a _ "&&" expr10:b                                         -> `(and ,a ,b)
+                | expr10
 
-rexpr12		= rexpr12:a __ "||" rexpr11:b						  -> `(or ,a ,b)
-		| rexpr11
+expr12          = expr12:a _ "||" expr11:b                                         -> `(or ,a ,b)
+                | expr11
 
-rexpr13		= rexpr13:a __ ("..." -> 'range-i | ".." -> 'range):op rexpr12:b	  -> `(,op ,a ,b)
-		| rexpr12
+expr13          = expr13:a _ ("..." -> 'range-i | ".." -> 'range):op expr12:b      -> `(,op ,a ,b)
+                | expr12
 
-rexpr14		= rexpr14:a __ "?" rexpr14:b __ ":" rexpr14:c				  -> `(if ,a ,b ,c)
-		| rexpr13
+expr14          = expr14:a _ "?" expr14:b _ ":" expr14:c                           -> `(if ,a ,b ,c)
+                | expr13
 
-rexpr15		= rexpr15:a __ "and" rexpr14:b						  -> `(and ,a ,b)
-		| rexpr14
+expr15          = expr15:a _ "and" expr14:b                                        -> `(and ,a ,b)
+                | expr14
 
-rexpr16		= rexpr16:a __ "or" rexpr15:b						  -> `(or ,a ,b)
-		| rexpr15
+expr16          = expr16:a _ "or" expr15:b                                         -> `(or ,a ,b)
+                | expr15
 
-rexpr17		= rlhs:r __ "=" rexpr17:l						  -> `(assign ,r ,l)
-		| rexpr16
+expr17          = lhs:r _ "=" expr17:l                                             -> `(assign ,r ,l)
+                | expr16
 
-rarg		= rexpr17
+arg             = expr17
 
-rargdecl	= __ "(" rarglist:a __ ")"						  -> a
-		| rarglist:a rT	       			 				  -> a
+argdecl         = _ "(" arglist:a _ ")"                                            -> a
+                | arglist:a T                                                      -> a
 
-rarglist	= (ridentifier:a -> `(,a):a) (__ "," ridentifier:b -> `(,@a ,b):a)*	  -> `(args ,@a)
+arglist         = (identifier:a -> `(,a):a) (_ "," identifier:b -> `(,@a ,b):a)*   -> `(args ,@a)
 
-roperation 	= __ ("defined?" @ :x | (rnsName ("!" | "?"))@ :x | rnsName @:x)   	  -> `(ident ,(intern (->string x)))
+operation       = _ ("defined?" @ :x | (nsName ("!" | "?"))@ :x | nsName @:x)      -> `(ident ,(intern (->string x)))
 
 
-rlhs		= rPrimExpr:a __ "[" rarg:b __ "]"			    		  -> `(index-lhs ,a ,b)
-		| rPrimExpr:a __ "." ridentifier:b		        		  -> `(prop-lhs ,a ,b)
-		| rvariable
+lhs             = primExpr:a _ "[" arg:b _ "]"                                     -> `(index-lhs ,a ,b)
+                | primExpr:a _ "." identifier:b                                    -> `(prop-lhs ,a ,b)
+                | variable
 
-rcall-args	= rargs
+call-args       = args
 
-rargs           = (rarg:a -> `(,a):a) (__ "," rarg:b -> `(,@a ,b):a)*			  -> a
-                | __                                                    		  -> '()
+args           = (arg:a -> `(,a):a) (_ "," arg:b -> `(,@a ,b):a)*                  -> a
+                | _                                                                -> '()
 
-rexpr		= rarg
-rstmt		= rexpr
+expr            = arg
+stmt            = expr
 
-rstmts		= (rstmt:a -> `(,a):a) (rT rstmt:b -> `(,@a ,b):a)* rT?			  -> a
-		| __ 	      	       			    	    			  -> '()
+stmts           = (stmt:a -> `(,a):a) (T stmt:b -> `(,@a ,b):a)* T?                -> a
+                | _                                                                -> '()
 
-rcomp-stmt	= rstmts:a								  -> `(compStmt ,@a)
+comp-stmt       = stmts:a                                                          -> `(compStmt ,@a)
 
-rblock-vars	= rlhs
+block-vars      = lhs
 
-rprogram	= rcomp-stmt
+program         = comp-stmt
 

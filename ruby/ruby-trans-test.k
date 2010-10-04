@@ -35,9 +35,9 @@ end
 print(sieve(3000))
 ")
 
-(let ((tree (parse-collection rprogram str)))
+(let ((tree (parse-collection ruby/program str)))
   (pretty-print tree)
-  (let ((prog (parse-stream rtstart (->stream (cons tree '())))))
+  (let ((prog (parse-stream ruby-trans/start (->stream (cons tree '())))))
     (pretty-print prog)
     (map eval prog)
 ))

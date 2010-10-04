@@ -20,7 +20,9 @@ step = function () {
 };
 ")
 
+(trace (getTimer))
 (let ((tree (parse-collection forall/start str)))
+(trace (getTimer))
   (pretty-print tree)
   (pretty-print (parse-stream forall-trans/starts (->stream (cons tree '()))))
   (map eval (parse-stream forall-trans/starts (->stream (cons tree '()))))
