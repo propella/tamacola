@@ -20,12 +20,13 @@
 
 ;; Evaluate expressions. Callback is called with the result if available.
 ;; This is not also reentrant!!
+;; An error object is given to the callback if exception happens.
 (define eval-all*
   (lambda (exprs namespace callback)
     (let ((func (lambda (e) (callback *eval-result*)))
           (expr `(set! *eval-result*
                       (let () ,@exprs))))
-      (set! *eval-result* #undefined)
+      (set! *eval-result* (new Error))
       (eval-all (list expr) namespace func))))
 
 ;; For runtime quasiquote

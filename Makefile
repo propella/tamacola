@@ -51,6 +51,7 @@ clean :
 	$(MAKE) -C forall clean
 	$(MAKE) -C ruby clean
 	$(MAKE) -C ws clean
+	$(MAKE) -C slide clean
 	$(MAKE) -C paper clean
 
 # todo: *.g file *.scm are not included. pegtest/* are test.

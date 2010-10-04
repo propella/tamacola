@@ -4,17 +4,20 @@
 
 ;;;; Global variables
 
-(define *stage* ())             ;; *stage* is assigned to the Stage object
-(define *workspace* ())         ;; TextField for Output
-(define *slides* ())            ;; The slides
+(define *stage* ())              ;; *stage* is assigned to the Stage object
+(define *workspace* ())          ;; TextField for Output
+(define *slides* ())             ;; The slides
+(define *sound-file* "coin.mp3") ;; Sound file
+(define *sound* ())              ;; Sound object
 
 (define stage (lambda () *stage*))
 (assemble (debugfile "Slide.k") (debugline 14) (pushundefined))
 
 (define display
-  (lambda (str)
-    (let ((end (slot-getq *workspace* selectionEndIndex))
-          (length (string-length str)))
+  (lambda (obj)
+    (let* ((str (String obj))
+           (end (slot-getq *workspace* selectionEndIndex))
+           (length (string-length str)))
       (send *workspace* replaceText end end str)
       (send *workspace* setSelection (+ end length) (+ end length)))))
 
@@ -25,12 +28,24 @@
 
 ;;;; Commands
 
+(define play-result
+  (lambda (obj)
+    (if (istype obj Error)
+        ()
+        (send *sound* play))))
+
 (define doit
-  (lambda (str) (evalstring str '*dummy* (lambda ()))))
+  (lambda (str)
+    (evalstring-default str '*dummy* play-result)))
+
+(define peg
+  (lambda (str)
+    (set! *translator* (make-translator peg/definitions))
+    (evalstring str '*dummy* play-result)))
 
 (define printit
   (lambda (str)
-    (evalstring str
+    (evalstring-default str
                 '*dummy*
                 (lambda (e)
                   (if (eq? e #undefined)
@@ -41,7 +56,9 @@
                              (end (slot-getq *workspace* selectionEndIndex)))
                         (send *workspace* replaceText end end out)
                         (send *workspace* setSelection end (+ end (slot-getq out length)))
-                        (slot-setq! (slot-getq *workspace* stage) focus *workspace*)))))))
+                        (slot-setq! (slot-getq *workspace* stage) focus *workspace*)))
+                  (play-result e)))))
+                  
 
 ;;;; Commands
 
@@ -76,6 +93,9 @@
 (define doit-selection
   (lambda () (doit (get-selection))))
 
+(define peg-selection
+  (lambda () (peg (get-selection))))
+
 (define printit-selection
   (lambda () (printit (get-selection))))
 
@@ -104,6 +124,7 @@
        ((equal? type "doit") (doit-selection))
        ((equal? type "reload") (slide-reload))
        ((equal? type "printit") (printit-selection))
+       ((equal? type "peg") (peg-selection))
        ('else (display 'else))))))
 
 (define handleKey
@@ -142,7 +163,6 @@
     (let* ((page (slot-get (slides-pages slides)
                            (slides-position slides)))
            (contents (send page children)))
-      (trace 'contents= (String contents))
       contents)))
 
 ;; Return a new slides to point a new location
@@ -193,6 +213,9 @@
        (constructsuper)
        (set! *stage* #self)
 
+       (set! *sound* (new flash.media/Sound))
+       (send *sound* load (new flash.net/URLRequest *sound-file*))
+
        (set! format (new flash.text/TextFormat))
        (slot-setq! format size 18)
        (slot-setq! format font "Courier New")
@@ -213,8 +236,9 @@
                                     "<a href='event:next'>[-&gt;]</a> "
                                     "<a href='event:reload'>[Reload]</a> "
                                     "<a href='event:doit'>[Do It]</a> "
-                                    "<a href='event:printit'>[Print It]</a> ")
-                                  "")))
+                                    "<a href='event:printit'>[Print It]</a> "
+                                    "<a href='event:peg'>[PEG]</a> "
+                                    ) "")))
          
          (slot-set-all! buttons ((x 5)
                                  (y 570)

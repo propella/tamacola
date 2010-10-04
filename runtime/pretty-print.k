@@ -28,6 +28,7 @@
 (define-method *pretty-print-on <symbol> (lambda (self indent out) (write-on self out)))
 (define-method *pretty-print-on Number (lambda (self indent out) (write-on self out)))
 (define-method *pretty-print-on Array (lambda (self indent out) (write-on self out)))
+(define-method *pretty-print-on Error (lambda (self indent out) (write-on self out)))
 
 (define write-indent
   (lambda (i out)

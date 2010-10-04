@@ -597,7 +597,7 @@ explain the essence of Tamacola.</p>
 ;; sexp.g
 ;; Lexical Parser
 
-spaces  = [ \t\r\n]*
+spaces  = [ \t\r\n]*                    -> 'SPACES
 
 digit   = [0123456789]
 number  = digit+ :n spaces              -> (string->number (->string n))

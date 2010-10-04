@@ -37,6 +37,6 @@ mkpeg.k : ../runtime/mkpeg.k
 	cp $< $@
 
 clean :
-	rm -f $(TARGET)
+	rm -f $(TARGET) mkpeg.abc
 
 .FORCE :

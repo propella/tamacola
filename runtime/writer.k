@@ -16,6 +16,12 @@
 (define-method write-on Number
   (lambda (v out) (next-put-all out (to-string v))))
 
+(define-method write-on Error
+  (lambda (v out)
+    (next-put out #"{")
+    (next-put-all out (String v))
+    (next-put out #"}")))
+
 (define-method write-on String
   (lambda (v out)
     (next-put out #"\"")

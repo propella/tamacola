@@ -1,9 +1,12 @@
 <xml>
+
+<!-- ******** Outline ******** -->
+
   <page>
     <p align='center'>
       <br/><br/><br/><br/><br/><br/>
-      <font face='Times' size='96'><b>Tamacola</b></font>
       <br/><br/><br/><br/><br/><br/>
+      <font face='Times' size='144'><b>Tamacola</b></font>
       <br/><br/><br/><br/><br/><br/>
       <font face='Times' size='36'>A Meta Language Kit for the Web</font>
       <br/><br/><br/><br/><br/><br/>
@@ -12,26 +15,24 @@
   </page>
 
   <page>
-    <p align='center'><font face='Times' size='64'><u>Outline</u></font></p>
-    <font face="Times" size="24">
+    <p align='center'><font face='Times' size='72'><u>Outline</u></font></p>
 
+    <font face="Times" size="22">
       <p>Introduction</p>
       <ul>
-        <li>Tamacola = Tamarin VM + COLA</li>
-        <!-- li>Goals</li -->
+        <li>Tamarin VM × COLA → Tamacola</li>
       </ul>
 
       <p>PEG in Tamacola</p>
       <ul>
         <li>PEG elements: Greetings, Number</li>
         <li>Mini Lisp: Parser, Compiler</li>
-        <!-- li>Recursion (Right? Left?)</li -->
       </ul>
 
-      <p>Self-Hosting</p>
+      <p>Implementation</p>
       <ul>
-        <li>Assembler, COLA, Boot-strapping, Frame layout</li>
-        <li>Runtime, Macros, Eval</li>
+        <li>Assembler, COLA, Boot-strapping, Frame layout, Runtime, Macros, Eval</li>
+        <li>Code size, Benchmarks</li>
       </ul>
 
       <p>Applications</p>
@@ -40,90 +41,435 @@
         <li>Extensions: Optimization, Left recursion (Yoshiki)</li>
         <li>Other languages: Particles, Ruby (Yoshiki)</li>
       </ul>
+    </font>
+  </page>
 
+<!-- ******** Introduction ******** -->
+  
+  <page>
+    <p align='center'><font face='Times' size='72'><u>Introduction</u></font></p>
+    <p align='center'><font face='Times' size='64'><b>
+      <br/><br/>
+      Tamarin VM × COLA<br/>
+      ↓<br/>
+      Tamacola<br/>
+    </b></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Tamarin VM</u></font></p>
+    <font face='Times' size='48'><br/>
+    <ul>
+      <li>Open source VM (Adobe Virtual Machine 2).</li>
+      <li>"The world's most pervasive software platform, used by over 3 million professionals and reaching 99% of Internet-enabled desktops in mature markets as well as a wide range of devices."</li>
+    </ul>
+    </font>
+
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>COLA</u></font></p>
+    <font face='Times' size='48'><br/><br/>
+    <ul>
+      <li>Scheme like lisp language</li>
+      <li>"Chain of Meaning" PEG parser</li>
+    </ul>
+    </font>
+
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Tamacola is</u></font></p>
+    <font face='Times' size='48'><br/><br/>
+    <ul>
+      <li>Compact, scheme like self-hosting compiler with PEG parser (less than 10,000 LOC)</li>
+      <li>Adobe Flash based Zero-install-requirement programming tool that students can easily access.</li>
+    </ul>
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Tamacola doesn't have</u></font></p>
+    <font face='Times' size='48'><br/><br/>
+      <ul>
+        <li>Tail call elimination optimization</li>
+        <li>Continuation</li>
+        <li>Multi-processing</li>
+        <li>Variable arguments for a function</li>
+      </ul>
+    </font>
+  </page>
+
+<!-- ******** PEG in Tamacola ******** -->
+
+  <page>
+    <p align='center'><font face='Times' size='72'><u>PEG in Tamacola</u></font></p>
+    <font face='Times' size='48'><br/><br/>
+      <ul>
+        <li>About this slide</li>
+        <li>Greetings</li>
+        <li>Number Scanner</li>
+        <li>S-Expression Parser</li>
+        <li>Compiler</li>
+        <li>Recursion</li>
+      </ul>
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>About the slide tool</u></font></p>
+    <font face='Times' size='36'><br/>
+    This slide is written in Tamacola, it works like a Smalltalk's Workspace.<br/><br/>
+      <ul>
+        <li>[Do It] evaluates a Tamacola expression</li>
+        <li>[Print It] evaluates and prints the result</li>
+        <li>[PEG] defines a new parser</li>
+      </ul>
+    </font>
+    <br/>
+    <font face='Courier New' size='36'>
+(+ 3 4)
+(throw "Hello, World!")
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Greeting</u></font></p>
+    <br/>
+    <font face='Courier New' size='24'>
+;; A parser for Constant values
+
+greeting = "morning" -> "Good Morning!"
+         | "evening" -> "Good Evening!"
+
+;; Test
+(parse-collection greeting "morning")
+(parse-collection greeting "evening")
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Number Scanner</u></font></p>
+    <br/>
+    <font face='Courier New' size='24'>
+;; A number parser
+
+dig     = [0123456789]
+num     = dig+
+
+;; Test
+
+(parse-collection dig "7")
+(parse-collection num "345")
+(parse-collection num "xyz")
+
+;; Construct a number
+
+num  = dig+:n -> (string->number (->string n))
 
     </font>
   </page>
-  
+
   <page>
-<p align='center'><font face='Times' size='48'><u>Goals</u></font></p>
+    <p><font face='Times' size='64'><u>S-expression Parser</u></font></p>
+    <font face='Courier New' size='16'>
+;; String Parser
+sp   = [ \t\r\n]*       -> 'SPACES
+
+dig  = [0123456789]
+num  = dig+ :n sp       -> (string->number (->string n))
+
+char = [+-*/abcdefghijklmnopqrstuvwxyz]
+sym  = char+ :s sp      -> (intern (->string s))
+        
+sexp  = sym
+      | num
+      | "(" sexp*:e ")" -> (->list e)
+
+;; Tests
+(parse-collection sp "    ")
+(parse-collection dig "0")
+(parse-collection num "345")
+(parse-collection char "a")
+(parse-collection sym "hello")
+
+(parse-collection sexp "345")
+(parse-collection sexp "hello")
+(parse-collection sexp "(hello world)")
+(parse-collection sexp "(3 4)")
+(parse-collection sexp "(print 4)")
+
+    </font>
   </page>
 
   <page>
-<p align='center'><font face='Times' size='48'><u>Why Flash?</u></font></p>
+    <p><font face='Times' size='64'><u>Compiler</u></font></p>
+    <font face='Courier New' size='16'>
+;; Parser
+len   = .*:x                        -> (length (->list x))
+insts = inst* :xs                   -> (concatenate (->list xs)) 
+                                        
+inst  = is-number:x                 -> `((pushint ,x))
+      | is-symbol:x                 -> `((getlex ((ns "") ,(symbol->string x))))
+      | '( '+ inst:x inst:y )       -> `(,@x ,@y (add))
+      | '( '- inst:x inst:y )       -> `(,@x ,@y (subtract))
+      | '( '* inst:x inst:y )       -> `(,@x ,@y (multiply))
+      | '( '/ inst:x inst:y )       -> `(,@x ,@y (divide))
+      | '( inst:f &amp;len:n insts:a )  -> `(,@f (pushnull) ,@a (call ,n))
+
+;; User defined predicates
+(define is-number
+  (lambda (*stream* *parser*)
+    (if (number? (peek *stream*))
+        (begin (set-parser-result *parser* (next *stream*))
+               #t)
+        #f)))
+
+(define is-symbol
+  (lambda (*stream* *parser*)
+    (if (symbol? (peek *stream*))
+        (begin (set-parser-result *parser* (next *stream*))
+               #t)
+        #f)))
+
+;; Tests
+(parse-collection len '(a b c))
+(parse-collection inst '(3))
+(parse-collection inst '((+ 3 4)))
+(parse-collection inst '((f 3 4)))
+(parse-collection insts '(3 4))
+    </font>
   </page>
 
   <page>
-<p align='center'><font face='Times' size='48'><u>Tool Usage</u></font></p>
+    <p><font face='Times' size='64'><u>Mini Lisp</u></font></p>
+
+    <font face='Courier New' size='18'>
+;; Linker
+program = inst:x  ->
+`(asm
+  (method (((signature
+             ((return_type *) (param_type ()) (name "program")
+              (flags 0) (options ()) (param_names ())))
+            (code ((getlocal 0)
+                   (pushscope)
+                   ,@x
+                   (returnvalue))))))
+  (script (((init (method 0)) (trait ())))))
+
+;; Test
+(define asm (parse-collection program '((print (+ 3 4)))))
+asm
+
+(define code (call-with-output-bytes
+               (lambda (port) (write-asm asm port))))
+(bytes->list code)
+
+(load-byte-codes code '())
+    </font>
   </page>
 
   <page>
-<p align='center'><font face='Times' size='48'><u>Greeting</u></font></p>
-  </page>
+    <p><font face='Times' size='64'><u>Recursion (Left? Right?)</u></font></p>
 
-  <page>
-<p align='center'><font face='Times' size='48'><u>Number</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Parser</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Compiler</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Recursion</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Assembler</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>COLA</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Boot-strapping</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Runtime Stack</u></font></p>
-    <img src='stack.png'/>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Macros</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Eval</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>COLA Workspace</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Applications</u></font></p>
-  </page>
-
-  <page>
-<p align='center'><font face='Times' size='48'><u>Conclusion</u></font></p>
-  </page>
-
-
-  <page><p align='center'><font face='Times' size='36'><u>Tamacola slide tool</u></font></p>
-
-<font face='Courier New' size='18'>(+ 3 4)
-(print "Hello, World!\n")
+<font face='Times' size='32'>
+<p align='center'>PEG doesn't support left recursion,<br/>but Arabic Numbers are left recursion:<br/>
+3456 = (((3 * 10 + 4) * 10 + 5) * 10 + 6)</p>
 </font>
+
+    <font face='Courier New' size='18'>
+;; Use fold-left
+dig   = [0123456789]:d -> (- d 48)
+numR  = dig:x dig*:xs  -> (fold-left
+                            (lambda (n d) (+ (* n 10) d))
+                            x
+                            (->list xs))
+
+;; Use left-recursion
+dig   = [0123456789]:d -> (- d 48)
+numL  = numL:n dig:d   -> (+ (* n 10) d)
+      | dig
+numLS = numL
+
+;; Tests
+(parse-collection numR "345")
+(parse-collection numLS "345")
+    </font>
+
+  </page>
+
+<!-- ******** Implementation ******** -->
+
+  <page>
+    <p align='center'><font face='Times' size='72'><u>Implementation</u></font></p>
+    <br/>
+    <font face='Times' size='36'>
+      Boot-Strapping
+      <ul>
+        <li>Build Process</li>
+        <li>Assembler</li>
+        <li>COLA</li>
+        <li>Boot-Strapping</li>
+        <li>Frame Layout</li>
+        <li>Runtime</li>
+        <li>Macros</li>
+        <li>Eval</li>
+      </ul>
+      <br/>
+      Discussion
+      <ul>
+        <li>Code size</li>
+        <li>Benchmarks</li>
+      </ul>
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Tools</u></font></p>
+    <img src='tools.png'/>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Build Process</u></font></p>
+    <p align='center'><font face='Times' size='36'><b>
+      <br/><br/>
+      Boot-strapping phase (COLA VM)<br/>
+      <br/>↓<br/><br/>
+      Stage1: Hybrid Phase (Tamarin VM)<br/>
+      <br/>↓<br/><br/>
+      Stage2: Production Phase (Tamarin VM)<br/>
+    </b></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Build Process</u></font></p>
+    <img src='buildprocess.png' />
   </page>
 
 
   <page>
-    <p>Fourth page</p>
+    <p><font face='Times' size='64'><u>Assembler</u></font></p>
+    <font face='Courier New' size='18'>
+(asm
+ (method
+  (((signature
+     ((return_type *) (param_type ()) (name "hello")
+      (flags 0) (options ()) (param_names ())))
+    (code
+     ((getlocal 0)
+      (pushscope)
+      (findpropstrict ((package "") "print"))
+      (pushstring "Hello, World!!")
+      (callproperty ((package "") "print") 1)
+      (returnvoid))))))
+ (script (((init (method 0)) (trait ())))))
+     </font>
+    <font face='Times' size='28'>
+      <br/>
+      "Hello, World" program written in ABCSX
+      <br/><br/>
+      <ul>
+        <li>ABCSX is an assembler and disassembler for ABC (Adobe Byte Code).</li>
+        <li>S-expression is used to describe a program.</li>
+        <li>ABCSX runs on COLA / Racket (PLT) / Gauche.</li>
+      </ul>
+    </font>
+
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Boot from COLA</u></font></p>
+    <font face='Times' size='36'>
+      <br/>
+      Necessary libraries:
+      <br/><br/>
+      <ul>
+        <li>Unit testing framework (SRFI-78 check).</li>
+        <li>Library framework (require).</li>
+        <li>List manipulations (map, fold, ...).</li>
+        <li>String functions (substring, verious conversion).</li>
+        <li>Generic functions.</li>
+        <li>Bit operations and streams.</li>
+        <li>Pretty printer.</li>
+      </ul>
+    </font>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Boot-Strapping</u></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Frame Layout</u></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Runtime</u></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Macros</u></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Eval</u></font></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Code size</u></font></p>
+    <br/>
+    <p align='center'><img src='loc.png' align='center'/></p>
+  </page>
+
+  <page>
+    <p><font face='Times' size='64'><u>Benchmarks</u></font></p>
+    <br/>
+    <img src='benchmarks.png'/>
+    <br/><br/><br/><br/><br/><br/>
+    
+    <font face='Times' size='24'>
+      (Small number is faster)
+    </font>
+    <font face='Times' size='36'>
+      <br/>
+      <ul>
+        <li>Fibonacci: The first 36 Fibonacci numbers recursively.</li>
+        <li>Sieve: The prime numbers up to 8,190 in the Eratosthenes Sieve algorithm, repeats it 3,000 times.</li>
+        <li>Sieve with Vector: uses Vector instead of Array to see the impact of parametric types.</li>
+      </ul>
+    </font>
+
+  </page>
+
+<!-- ******** Applications ******** -->
+
+  <page>
+    <p align='center'><font face='Times' size='72'><u>Applications</u></font></p>
+    <br/>
+    <font face='Times' size='48'>
+      <ul>
+        <li>Workspace</li>
+        <li>Extensions: Optimization, Left recursion (Yoshiki)</li>
+        <li>Other languages: Particles, Ruby (Yoshiki)</li>
+      </ul>
+    </font>
+  </page>
+
+<!-- ******** Conclusions ******** -->
+
+  <page>
+    <p align='center'><font face='Times' size='72'><u>Conclusions</u></font></p>
+    <font face='Times' size='36'>
+      <br/>
+      <br/><br/>
+      <ul>
+        <li>Compact self hosting lisp compiler</li>
+        <li>PEG parser generator / list transformer</li>
+        <li>Run on Adobe Flash</li>
+        <li>Dynamic programming environment for the Web</li>
+      </ul>
+    </font>
+
+
   </page>
 </xml>

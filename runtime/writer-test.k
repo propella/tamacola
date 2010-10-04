@@ -13,6 +13,9 @@
 	(lambda (out) (write-on 'hello out))) => "hello")
 
 (check (call-with-output-string
+	(lambda (out) (write-on (new Error) out))) => "{Error}")
+
+(check (call-with-output-string
 	(lambda (out) (write-on 0 out))) => "0")
 (check (call-with-output-string
 	(lambda (out) (write-on 1 out))) => "1")
