@@ -7,7 +7,9 @@
 (define *stage* ())             ;; *stage* is assigned to the Stage object
 (define *workspace* ())         ;; TextField for Output
 (define *navigation* ())        ;; TextField for Navigation
-(define *location* "Home.html") ;; Current visiting URL
+;(define *home* "Home.html")     ;; the name of the home
+(define *home* "S3-Yoshiki.html")     ;; the name of the home
+(define *location* *home*)      ;; Current visiting URL
 (define *history* ())           ;; History list
 (define *language* ())          ;; TextField for Language Setting
 
@@ -123,8 +125,8 @@
               (if (pair? *history*)
                   (jump* (car *history*))
                   'YOU-ARE-AT-HOME-ALREADY))
-            (jump "Home.html")))
-       ((equal? type "home") (jump "Home.html"))
+            (jump *home*)))
+       ((equal? type "home") (jump *home*))
        ((equal? type "reload") (jump* *location*))
        ((equal? type "doit") (doit selection))
        ((equal? type "printit") (printit selection))

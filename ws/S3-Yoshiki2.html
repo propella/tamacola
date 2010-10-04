@@ -1,0 +1,20 @@
+<p align='center'><font face='Times' size='36'><b>The Forall Language</b></font></p>
+<font face='Times' size='16'>
+Based on JavaScript-like syntax:<font face='Courier New' size='14'><pre>
+    nextStep = function (a, n) {
+        return ((n == 2) || (a == 1 && (n == 2 || n == 3))) ? 1 : 0;
+};
+</pre></font>
+Multi-dimentional array:<font face='Courier New' size='14'><pre>
+    arr[i:0...N, j:0...N] = Math.floor(Math.random() + 0.5);
+</pre></font>
+Query keywords:<font face='Courier New' size='14'><pre>
+    %all{a[i, j] &lt; arr} do {a = nextStep(a // 10, a % 10);};
+    %such{a == 1 | a[i, j] &lt; arr} do {...};
+</pre></font>
+Double-buffered Array:<font face='Courier New' size='14'><pre>
+    arr.flip();
+</pre></font>
+API support:<font face='Courier New' size='14'><pre>
+    stage().graphics.beginFill(16711935);
+</pre></font>
