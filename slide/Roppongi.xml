@@ -27,9 +27,10 @@
 
   <page><br/>
     <p><font face='Times' size='64'><u>Tamarin VM</u></font></p>
-    <font face='Times' size='36'><br/><br/><br/>
+    <font face='Times' size='36'><br/><br/>
     <ul>
       <li>オープンソース VM (Adobe Virtual Machine 2).<br/></li>
+      <li>Adobe Flash Player のエンジン.<br/></li>
       <li>「三百万人以上のプロフェッショナルに使われ、先進国中 99% ものインターネット利用可能なデスクトップや多くのデバイスで利用出来る世界一普及しているプラットフォーム。」</li>
     </ul>
     </font>
@@ -52,7 +53,7 @@
     <font face='Times' size='48'><br/><br/>
     <ul>
       <li>コンパクト(一万行以下)。</li>
-      <li>Scheme 風自己記述言語。</li>
+      <li>Scheme (Lisp) 風自己記述言語。</li>
       <li>べんりな PEG パーサ付き。</li>
       <li>Flash で動きインストール不要。</li>
     </ul>
@@ -78,7 +79,7 @@
     <font face='Times' size='48'><br/>
 <p align='center'>Tamacola で Smalltalk<br/>(のようなもの)を作ろう<br/></p>
       <ul>
-        <li>Smalltak 文を S 式に変換。</li>
+        <li>Smalltak 文を Lisp 式に変換。</li>
         <li>さらにバイトコードに変換。</li>
         <li>Flash Player で実行</li>
       </ul>
@@ -264,7 +265,7 @@ stmt       = unary
   <page><br/>
     <p><font face='Times' size='64'><u>二項メッセージ</u></font></p>
     <br/>
-    <font face='Courier New' size='24'>
+    <font face='Courier New' size='20'>
 binary      = unary:x ( binary-rest+ :ms
             -> (fold-left
                  (lambda (r m) `(,(car m) ,r ,(cadr m)))
@@ -281,7 +282,7 @@ stmt       = binary
 (parse-collection binary-rest "+ 4")
 (parse-collection binary "3 + 4")
 (parse-collection binary "3 + 4 * 5")
-(parse-collection binary "(3 + 4) * 5")
+(parse-collection binary "3 + (4 * 5)")
 (parse-collection binary "3 foo * 5")
     </font>
   </page>
@@ -376,10 +377,10 @@ _stmts = __ stmts
   </page>
 
   <page><br/>
-    <p><font face='Times' size='64'><u>ランタイム</u></font></p>
+    <p><font face='Times' size='64'><u>ランタイムライブラリ</u></font></p>
     <br/>
-    <font face='Courier New' size='20'>
-(slot-setq! (slot-getq Function prototype) value
+    <font face='Courier New' size='24'>
+<!-- (slot-setq! (slot-getq Function prototype) value
             (lambda (a1) (#self)))
 [3 + 4] value.
 
@@ -390,14 +391,17 @@ _stmts = __ stmts
 (slot-setq! (slot-getq Object prototype) at:
             (lambda (key) (slot-get #self key)))
 'スモールトーク' at: #length.
-
-(slot-setq! (slot-getq Boolean prototype) ifTrue:ifFalse:
+ -->
+(slot-setq! (slot-getq Boolean prototype)
+            ifTrue:ifFalse:
             (lambda (a b) (if #self (a) (b))))
-(1 &gt; 0) ifTrue: ['真'] ifFalse: ['偽'].
 
+(1 &gt; 0) ifTrue: ['真'] ifFalse: ['偽'].
+<!--
 (slot-setq! (slot-getq Object prototype) println
             (lambda () (println #self)))
 'Hello, World!' println.
+-->
     </font>
   </page>
 
@@ -414,7 +418,7 @@ Number methodAt: #fib put:
 [
   | i |
   i := self.
-  (self &lt; 2) ifTrue: [1]
+  (i &lt; 2) ifTrue: [1]
              ifFalse: [ (i - 1) fib + (i - 2) fib]
 ]
 
@@ -428,7 +432,7 @@ Number methodAt: #fib put:
   </page>
 
 
-  <page>
+  <!-- page>
     <p><font face='Times' size='64'><u>Code size</u></font></p>
     <br/>
     <p align='center'><img src='loc.png' align='center'/></p>
@@ -451,7 +455,7 @@ Number methodAt: #fib put:
         <li>Sieve with Vector: uses Vector instead of Array to see the impact of parametric types.<br/></li>
       </ul>
     </font>
-  </page>
+  </page-->
 
 <!-- ******** Conclusions ******** -->
 

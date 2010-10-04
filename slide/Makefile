@@ -44,6 +44,15 @@ tools.png : ../paper/tools.eps
 %.abc : %.k
 	$(TAMACC) -o $@ ../runtime/core.k $<
 
+tamacola-st : Roppongi.swf .FORCE
+	rm -rf $@
+	mkdir $@
+	cp Roppongi.swf $@
+	cp Roppongi.xml $@
+	cp Cat.mp3 Goose.mp3 $@
+	cp Roppongi.html $@
+
+
 .FORCE :
 
 clean :
