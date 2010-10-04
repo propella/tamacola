@@ -67,3 +67,14 @@
 
 ; (set! print display)
 (define println trace)
+
+;;;; Unit test
+
+(define %check-write
+  (lambda (result expected)
+    (trace "*FAILED*")
+    (display "result: ")
+    (pretty-print result)
+    (display "expected: ")
+    (pretty-print expected)
+    'FAIL))

@@ -487,13 +487,20 @@
 	(>> n (- 0 m)))))
 
 ;;;; Unit test
+;;;; todo: Use macro. see ../boot/std.k
 
 (define => ()) ; dummy definition for delimiter
+
+(define %check-write
+  (lambda (result expected)
+    (trace "*FAILED*" " result: " result " expected: " expected)
+    'FAIL))
+
 (define check
   (lambda (result => expect)
     (if (equal? result expect)
 	"ok"
-	(trace "*FAILED*" " result: " result " expect: " expect))))
+	(%check-write result expect))))
 
 ;;;; Hash Map [plt]
 ;;;; This emulate hash map with an ActionScript object.

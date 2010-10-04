@@ -114,3 +114,14 @@
     (if *translator*
         (eval-all* (*translator* s) ns callback)
         (evalstring-default s ns callback))))
+
+;;;; Unit test
+
+(define %check-write
+  (lambda (result expected)
+    (display "\n*FAILED*\n")
+    (display "result: ")
+    (pretty-print result)
+    (display "expected: ")
+    (pretty-print expected)
+    'FAIL))

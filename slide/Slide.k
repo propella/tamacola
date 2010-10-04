@@ -4,11 +4,14 @@
 
 ;;;; Global variables
 
+(define *location* "Home.xml")
 (define *stage* ())              ;; *stage* is assigned to the Stage object
 (define *workspace* ())          ;; TextField for Output
 (define *slides* ())             ;; The slides
-(define *sound-file* "coin.mp3") ;; Sound file
-(define *sound* ())              ;; Sound object
+(define *ok-sound-file* "Cat.mp3") ;; OK Sound file
+(define *ok-sound* ())              ;; OK Sound object
+(define *ng-sound-file* "Goose.mp3") ;; NG Sound file
+(define *ng-sound* ())              ;; NG Sound object
 
 (define stage (lambda () *stage*))
 (assemble (debugfile "Slide.k") (debugline 14) (pushundefined))
@@ -30,9 +33,9 @@
 
 (define play-result
   (lambda (obj)
-    (if (istype obj Error)
-        ()
-        (send *sound* play))))
+    (if (or (istype obj Error) (eq? obj 'FAIL))
+        (send *ng-sound* play)
+        (send *ok-sound* play))))
 
 (define doit
   (lambda (str)
@@ -101,7 +104,7 @@
 
 (define slide-reload
   (lambda ()
-    (load-slides "Home.xml"
+    (load-slides *location*
                  (lambda (slides)
                    (slides-update (slides-goto slides (slides-position *slides*)))))))
 
@@ -204,7 +207,7 @@
 
 (define init-source
   (lambda ()
-    (load-slides "Home.xml"
+    (load-slides *location*
                  (lambda (slides) (slides-update slides)))))
 
 ;;;; Screen configuration
@@ -213,8 +216,10 @@
        (constructsuper)
        (set! *stage* #self)
 
-       (set! *sound* (new flash.media/Sound))
-       (send *sound* load (new flash.net/URLRequest *sound-file*))
+       (set! *ok-sound* (new flash.media/Sound))
+       (send *ok-sound* load (new flash.net/URLRequest *ok-sound-file*))
+       (set! *ng-sound* (new flash.media/Sound))
+       (send *ng-sound* load (new flash.net/URLRequest *ng-sound-file*))
 
        (set! format (new flash.text/TextFormat))
        (slot-setq! format size 18)

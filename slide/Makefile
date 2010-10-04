@@ -24,6 +24,9 @@ run : Slide.swf
 Slide.swf : stage2 ../ws/peg-memo-macro.abc ../ws/platform-flash.abc Slide.abc 
 	$(MKSWF) -w 800 -h 600 -o $@ -c Slide $(STAGE2) ../ws/peg-memo-macro.abc ../ws/platform-flash.abc Slide.abc
 
+Roppongi.swf : stage2 ../ws/peg-memo-macro.abc ../ws/platform-flash.abc Slide.abc roppongi.abc
+	$(MKSWF) -w 800 -h 600 -o $@ -c Slide $(STAGE2) ../ws/peg-memo-macro.abc ../ws/platform-flash.abc Slide.abc roppongi.abc
+
 stage2 : .FORCE
 	$(MAKE) -C ../stage2 tamacola swf.abc
 
@@ -31,7 +34,7 @@ stage2 : .FORCE
 	$(MAKE) -C ../ws peg-memo-macro.abc
 
 stack.png : ../paper/stack.eps
-	convert -density 600 $< $@
+	convert -density 160 $< $@
 
 buildprocess.png : ../paper/buildprocess.eps
 	convert -density 110 $< $@

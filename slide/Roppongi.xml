@@ -8,50 +8,16 @@
       <br/><br/><br/><br/><br/><br/>
       <font face='Times' size='144'><b>Tamacola</b></font>
       <br/><br/><br/><br/><br/><br/>
-      <font face='Times' size='36'>A Meta Language Kit for the Web</font>
+      <font face='Times' size='48'>でスモールトークを作ろう。</font>
       <br/><br/><br/><br/><br/><br/>
-      <font size='32'>Takashi Yamamiya and Yoshiki Ohshima</font>
+      <font size='48'>山宮 隆</font>
     </p>
-  </page>
-
-  <page>
-    <p align='center'><font face='Times' size='72'><u>Outline</u></font></p>
-
-    <font face="Times" size="22">
-      Introduction
-      <ul>
-        <li>Tamarin VM × COLA → Tamacola</li>
-      </ul>
-      <br/>
-      PEG in Tamacola
-      <ul>
-        <li>About this slide, Greetings, Number, S-Expression, Compiler, Recursion</li>
-      </ul>
-      <br/>
-      Implementation
-      <ul>
-        <li>Tools, Build Process, Assembler, Boot-strapping, Test, Frame, Macros, Eval</li>
-      </ul>
-      <br/>
-      Applications
-      <ul>
-        <li>Workspace, Extensions, Other languages (Yoshiki)</li>
-      </ul>
-      <br/>
-      Discussions
-      <ul>
-        <li>Code size, Benchmarks</li>
-      </ul>
-      <br/>
-      Conclusions
-
-    </font>
   </page>
 
 <!-- ******** Introduction ******** -->
   
   <page>
-    <p align='center'><font face='Times' size='72'><u>Introduction</u></font></p>
+    <p align='center'><font face='Times' size='72'><u>イントロダクション</u></font></p>
     <p align='center'><font face='Times' size='64'><b>
       <br/><br/>
       Tamarin VM × COLA<br/>
@@ -64,8 +30,8 @@
     <p><font face='Times' size='64'><u>Tamarin VM</u></font></p>
     <font face='Times' size='36'><br/><br/><br/>
     <ul>
-      <li>Open source VM (Adobe Virtual Machine 2).<br/></li>
-      <li>"The world's most pervasive software platform, used by over 3 million professionals and reaching 99% of Internet-enabled desktops in mature markets as well as a wide range of devices."</li>
+      <li>オープンソース VM (Adobe Virtual Machine 2).<br/></li>
+      <li>「三百万人以上のプロフェッショナルに使われ、先進国中 99% ものインターネット利用可能なデスクトップや多くのデバイスで利用出来る世界一普及しているプラットフォーム。」</li>
     </ul>
     </font>
 
@@ -75,31 +41,31 @@
     <p><font face='Times' size='64'><u>COLA</u></font></p>
     <font face='Times' size='48'><br/><br/>
     <ul>
-      <li>Scheme like lisp language<br/></li>
-      <li>"Chain of Meaning" PEG parser</li>
+      <li>Scheme 風 lisp 言語<br/></li>
+      <li>「意味の鎖」を処理するPEGパーサ</li>
     </ul>
     </font>
 
   </page>
 
   <page>
-    <p><font face='Times' size='64'><u>Tamacola is</u></font></p>
+    <p><font face='Times' size='64'><u>Tamacola とは</u></font></p>
     <font face='Times' size='48'><br/>
     <ul>
-      <li>Compact, scheme like self-hosting compiler with PEG parser (less than 10,000 LOC)<br/></li>
-      <li>Zero-install-requirement programming tool on Adobe Flash that students can easily access.</li>
+      <li>コンパクトな Scheme 風自己記述言語。PEG パーサ付き。(一万行以下)<br/></li>
+      <li>Adobe Flash 上で動きインストール不要。学生さんにも簡単アクセス。</li>
     </ul>
     </font>
   </page>
 
   <page>
-    <p><font face='Times' size='64'><u>Tamacola doesn't have</u></font></p>
+    <p><font face='Times' size='64'><u>Tamacola に無いもの</u></font></p>
     <font face='Times' size='48'><br/><br/>
       <ul>
-        <li>Tail call elimination optimization</li>
-        <li>Continuation</li>
-        <li>Multi-processing</li>
-        <li>Variable arguments for a function</li>
+        <li>末尾呼び出し最適化</li>
+        <li>継続</li>
+        <li>平行プログラミング</li>
+        <li>可変長引数</li>
       </ul>
     </font>
   </page>
@@ -107,7 +73,7 @@
 <!-- ******** PEG in Tamacola ******** -->
 
   <page>
-    <p align='center'><font face='Times' size='72'><u>PEG in Tamacola</u></font></p>
+    <p align='center'><font face='Times' size='72'><u>Tamacola で<br/>スモールトーク<br/>(のようなもの)を作ろう</u></font></p>
     <font face='Times' size='48'><br/><br/>
       <ul>
         <li>About this slide</li>
@@ -415,7 +381,7 @@ numLS = numL
       File naming convention (based on the Go language)
     <br/><br/>
     <font face='Courier New' size='28'>
-target:          tests:
+target:          source:
 runtime/std.k -> runtime/std-test.k
     </font>
 
@@ -428,8 +394,8 @@ runtime/std.k -> runtime/std-test.k
     <font face='Courier New' size='18'>
 class Obj {
   function f(x, y) {
-    var g = function(z) { &#160;<u>return h(x, 30)</u>&#160; };
-    g(y);
+    var g = function(z) { return h(x, 30) };
+    g(y); // (← The picture below shows the stack here.)
   }
 }
 var obj = new Obj();
@@ -445,9 +411,9 @@ obj.f(10, 20);
   <page>
     <p><font face='Times' size='64'><u>Macros</u></font></p>
     <font face='Times' size='24'>
-    Macro is used as begin, and, or, cond, let*, list, PEG parsers...
+    Macro is used as begin, and, or, cond, let*, list, peg parsers...
       <br/><br/>
-      (define-form &#160; <i>name argument expander</i>)
+      (define-form name argument expander)
       <br/>
       <br/>
       <font face='Courier New' size='24'>
@@ -456,7 +422,7 @@ obj.f(10, 20);
 (macroexpand-1 (begin foo bar buz))
       </font>
       <br/><br/>
-      (define-pattern (<i>template pattern</i>) ...)
+      (define-pattern (template pattern) ...)
       <br/><br/>
       <font face='Courier New' size='24'>
 (define-pattern
